@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2024 Mini-Python Builder Contributors
+#
+# SPDX-License-Identifier: CC0-1.0
+#
+# Development environment configuration © 2024 by Mini-Python Builder Contributors
+# is marked with CC0 1.0
+
+[book]
+title = "Mini-Python Builder"
+
+# no need for more nesting, this file already lives in
+# a specific subdir
+src = "."
+
+language = "en"
+
+[build]
+build-dir = "../docs-rendered"
+create-missing = false
+
+[output.html]
+
+[output.pandoc]
+optional = true # if mdbook-pandoc is not installed, build only the html version
+
+[output.pandoc.profile.pdf]
+# to debug latex errors: change file ending to .tex
+output-file = "output.pdf"
+to = "latex"
+pdf-engine = "lualatex"
+
+file-scope = true # parse each file individually before combining
+number-sections = true # number sections headings
+standalone = true # produce output with an appropriate header and footer
+table-of-contents = true # include an automatically generated table of contents
+
+tab-stop = 4
+
+[output.pandoc.profile.pdf.variables]
+papersize = "a4"
+fontsize = "12pt"
+mainfont = "STIXTwoText"
+sansfont = "Recursive Sans Linear Static"
+monofont = "Recursive Mono Linear Static"
+mathfont = "STIXTwoMath-Regular"
+mainfontoptions = ["Extension=.otf", "BoldFont=*-Bold", "ItalicFont=*-Italic", "BoldItalicFont=*-BoldItalic", "UprightFont=*-Regular"]
+# untested, only works with pandoc 3.1.12+ and lualatex
+mainfontfallback = ["NotoColorEmoji:"]
