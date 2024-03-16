@@ -9,18 +9,18 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 
 # Summary
 
-[Overview (en)](./readme.en.link.md)
-[Übersicht (de)](./readme.md)
+[Overview (en)](readme.en.link.md)
+[Übersicht (de)](readme.md)
 
 # Verwendung (de)
 
-- [Verwendung des CBuilders](./usage_cbuilder.md)
-- [Verwendung des generierten C-Codes](./usage_generated_code.md)
+- [Verwendung des CBuilders](usage_cbuilder.md)
+- [Verwendung des generierten C-Codes](usage_generated_code.md)
 
 # Mini-Python (de)
 
-- [Syntaktische Definition](./syntax_definition.md)
-- [Semantische Definition](./semantic_definition.md)
+- [Syntaktische Definition](syntax_definition.md)
+- [Semantische Definition](semantic_definition.md)
 
 -----------
 
@@ -40,13 +40,13 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 ## Compiler-Backends
 
 - [Options]()
-    - [MLIR](./development/backends/mlir.md)
+    - [MLIR](development/backends/mlir.md)
     - [WAMS]()
     - [Custom Made]()
     - [Existing C-backend]()
-- [Comparison](./development/backends/comparison.md)
+- [Comparison](development/backends/comparison.md)
 
 
 -----------
 
-[License](./license.link.md)
+[License](license.link.md)
