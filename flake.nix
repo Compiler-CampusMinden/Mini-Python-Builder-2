@@ -48,7 +48,8 @@
 
         shellHook = ''
           unset SOURCE_DATE_EPOCH
-          just --list --list-heading $'just <task>:\n'
+          echo "make <task>:"
+          make list
         '';
       };
     in {
