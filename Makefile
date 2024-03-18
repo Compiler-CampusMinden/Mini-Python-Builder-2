@@ -20,6 +20,7 @@ list:
 .PHONY: clean
 clean:
 	$(RM) -r ./docs-rendered
+	$(MAKE) --directory c-runtime clean
 
 # render (plantuml) diagrams in the docs/ folders
 .PHONY: docs-diagrams
@@ -40,6 +41,18 @@ book-docker:
 		sh -c \
 		'cd /workdir && make book'
 
+.PHONY: c-runtime/lib_wasm
+c-runtime/lib_wasm:
+	$(MAKE) --directory c-runtime lib_wasm
+
+.PHONY: c-runtime/lib_wasm-docker
+c-runtime/lib_wasm-docker:
+	@docker image inspect mpy-cruntime-wasm:latest 1>/dev/null 2>&1 || (echo "docker image not found; please run 'make docker-build-c-runtime.wasm'" && exit 1)
+	docker run \
+		-v "$(CURDIR):/workdir" \
+		-it --rm mpy-cruntime-wasm:latest \
+		sh -c \
+		'cd /workdir && make c-runtime/lib_wasm'
 
 # check formatting rules are adhered to
 .PHONY: format
@@ -67,6 +80,17 @@ flake-update-docker:
 		sh -c \
 		'cd /workdir && nix --extra-experimental-features nix-command --extra-experimental-features flakes flake update'
 
+COMMON_DOCKER_BUILD_ARGS :=
+# if all docker images use a common base image,
+# at least some part of the development images
+# share common layers.
+# this should save storage (and initial download time)
+COMMON_DOCKER_BUILD_ARGS += --build-arg DEBIAN_RELEASE_NAME=bookworm
+
 .PHONY: docker-build-mdbook
 docker-build-mdbook:
-	docker build --tag mpy-mdbook:latest docker/book
+	docker build $(COMMON_DOCKER_BUILD_ARGS) --tag mpy-mdbook:latest docker/book
+
+.PHONY: docker-build-c-runtime.wasm
+docker-build-c-runtime.wasm:
+	docker build $(COMMON_DOCKER_BUILD_ARGS) --tag mpy-cruntime-wasm:latest docker/c-runtime.wasm

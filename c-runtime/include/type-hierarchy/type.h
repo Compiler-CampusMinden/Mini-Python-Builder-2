@@ -2,12 +2,13 @@
 #ifndef TYPE_HIERARCHY_TYPE_H
 #define TYPE_HIERARCHY_TYPE_H
 
+#include "mpy.h"
 #include "mpy_obj.h"
 #include "simple_hash_map.h"
 
 __MPyObj* __mpy_obj_init_type_builtin(const char *name, __MPyObj *self, __MPyHashMap *attributes, __MPyObj *parentType);
 
-__MPyObj* __mpy_obj_init_type(const char *name, __MPyObj *parentType);
+MPY_API __MPyObj* __mpy_obj_init_type(const char *name, __MPyObj *parentType);
 
 __MPyObj *__mpy_type_set_attr_impl(__MPyObj *self, const char *name, __MPyObj *value);
 

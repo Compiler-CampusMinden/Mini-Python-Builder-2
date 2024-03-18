@@ -1,11 +1,12 @@
 #ifndef LITERALS_STR_H
 #define LITERALS_STR_H
 
+#include "mpy.h"
 #include "mpy_obj.h"
 
-__MPyObj* __mpy_obj_init_str_static(const char *string);
+MPY_API __MPyObj* __mpy_obj_init_str_static(const char *string);
 
-__MPyObj* __mpy_obj_init_str_dynamic(char *string);
+MPY_API __MPyObj* __mpy_obj_init_str_dynamic(char *string);
 
 const char* __mpy_str_as_c_str(__MPyObj *self);
 

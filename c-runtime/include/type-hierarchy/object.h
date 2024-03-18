@@ -1,9 +1,10 @@
 #ifndef TYPE_HIERARCHY_OBJECT_H
 #define TYPE_HIERARCHY_OBJECT_H
 
+#include "mpy.h"
 #include "mpy_obj.h"
 
-__MPyObj *__mpy_obj_init_object(void);
+MPY_API __MPyObj *__mpy_obj_init_object(void);
 
 __MPyObj* __mpy_object_func_str_impl(__MPyObj *args, __MPyObj *kwargs);
 

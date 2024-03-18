@@ -1,4 +1,5 @@
 
+#include "mpy.h"
 #include "mpy_obj.h"
 
 /**
@@ -54,7 +55,7 @@ typedef struct __MPyGetArgsState {
  * @param countPositionalArgs The total number of positional arguments.
  * @return The extraction state ready for usage.
  */
-__MPyGetArgsState __mpy_args_init(const char *funcName, __MPyObj *args, __MPyObj *kwargs, unsigned int countPositionalArgs);
+MPY_API __MPyGetArgsState __mpy_args_init(const char *funcName, __MPyObj *args, __MPyObj *kwargs, unsigned int countPositionalArgs);
 
 /**
  * Tries to retrieve a positional argument.
@@ -69,7 +70,7 @@ __MPyGetArgsState __mpy_args_init(const char *funcName, __MPyObj *args, __MPyObj
  * @param argName The name of the argument.
  * @return The arguments value.
  */
-__MPyObj *__mpy_args_get_positional(__MPyGetArgsState *state, unsigned int position, const char *argName);
+MPY_API __MPyObj *__mpy_args_get_positional(__MPyGetArgsState *state, unsigned int position, const char *argName);
 
 /**
  * Finish argument retrieval after extracting all expected arguments.
@@ -82,8 +83,8 @@ __MPyObj *__mpy_args_get_positional(__MPyGetArgsState *state, unsigned int posit
  * Performs final checks after all expected arguments have been retrieved.
  * Currently this means checking that all positional arguments in args have been used
  * and that no keyword arguments were unused.
- * 
+ *
  * @param state The extraction state.
  */
-void __mpy_args_finish(__MPyGetArgsState *state);
+MPY_API void __mpy_args_finish(__MPyGetArgsState *state);
 

@@ -24,6 +24,21 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 
 -----------
 
+# Architecture
+
+- [Introduction]()
+
+# Builder
+
+- [Public API]()
+- [Transformation/Lowering]()
+
+# Backends
+
+- [c-runtime](./architecture/backends/c-runtime.md)
+
+-----------
+
 # Development
 
 - [Introduction]()

@@ -1,11 +1,12 @@
 #ifndef LITERALS_BOOLEAN_H
 #define LITERALS_BOOLEAN_H
 
+#include "mpy.h"
 #include "mpy_obj.h"
 
 typedef bool __mpy_boolean_c_type;
 
-__MPyObj* __mpy_obj_init_boolean(__mpy_boolean_c_type value);
+MPY_API __MPyObj* __mpy_obj_init_boolean(__mpy_boolean_c_type value);
 
 __MPyObj* __mpy_boolean_func_str_impl(__MPyObj *args, __MPyObj *kwargs);
 

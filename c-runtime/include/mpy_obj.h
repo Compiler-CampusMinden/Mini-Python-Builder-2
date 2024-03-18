@@ -1,6 +1,7 @@
 #ifndef MPY_OBJ_H
 #define MPY_OBJ_H
 
+#include "mpy.h"
 #include "stdbool.h"
 
 /**
@@ -81,7 +82,7 @@ struct __MPyObj {
 /**
  * This function *must* be called before returning a __MPyObj from a function.
  */
-__MPyObj* __mpy_obj_return(__MPyObj*);
+MPY_API __MPyObj* __mpy_obj_return(__MPyObj*);
 
 /**
  * Initialises a new __MPyObj.
@@ -91,17 +92,17 @@ __MPyObj* __mpy_obj_new(void);
 /**
  * Increment the ref count if the object is used in another context.
  */
-void __mpy_obj_ref_inc(__MPyObj *obj);
+MPY_API void __mpy_obj_ref_inc(__MPyObj *obj);
 
 /**
  * Decrement ref count if an object is not used anymore.
  *
  * Performs de-allocation of memory allocated for the object.
  */
-void __mpy_obj_ref_dec(__MPyObj *obj);
+MPY_API void __mpy_obj_ref_dec(__MPyObj *obj);
 
-__MPyObj* __mpy_obj_get_attr(__MPyObj *self, const char* name);
+MPY_API __MPyObj* __mpy_obj_get_attr(__MPyObj *self, const char* name);
 
-__MPyObj* __mpy_obj_set_attr(__MPyObj *self, const char *name, __MPyObj *value);
+MPY_API __MPyObj* __mpy_obj_set_attr(__MPyObj *self, const char *name, __MPyObj *value);
 
 #endif
