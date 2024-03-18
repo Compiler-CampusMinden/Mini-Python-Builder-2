@@ -83,7 +83,7 @@ __MPyObj *__mpy_type_set_attr_impl(__MPyObj *self, const char *name, __MPyObj *v
     if (content->builtin) {
         fprintf(stderr, "TypeError: can't set attributes of builtin type '%s'\n", content->name);
         __mpy_fatal_error(__MPY_ERROR_USER);
-    } 
+    }
 
     __MPyObj *previousValue = __mpy_hash_map_put(content->attributes, (void*) name, value);
     __mpy_obj_ref_inc(value);
@@ -165,5 +165,5 @@ __MPyObj* __mpy_type_get_parent_type(__MPyObj *self) {
 /*     __MPyObj *name = __mpy_args_get_positional(&argHelper, 0, "name"); */
 /*     __mpy_args_finish(&argHelper); */
 
-    
+
 /* } */

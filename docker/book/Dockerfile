@@ -1,6 +1,9 @@
+# see ../Makefile
+ARG DEBIAN_RELEASE_NAME
+
 # keep the debian version in sync with the debian version used for the run-container
 # to prevent issues with mismatching shared libraries
-FROM rust:slim-bookworm AS rust-builder
+FROM rust:slim-$DEBIAN_RELEASE_NAME AS rust-builder
 
 ARG MDBOOK_VERSION=0.4
 
@@ -13,7 +16,7 @@ ARG MDBOOK_PANDOC_VERSION=0.5
 RUN cargo install mdbook-pandoc \
     --vers "^${MDBOOK_PANDOC_VERSION}" --locked
 
-FROM debian:bookworm-slim
+FROM debian:$DEBIAN_RELEASE_NAME-slim
 
 COPY --from=rust-builder /usr/local/cargo/bin/mdbook /usr/local/bin
 COPY --from=rust-builder /usr/local/cargo/bin/mdbook-pandoc /usr/local/bin

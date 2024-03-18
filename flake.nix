@@ -37,18 +37,32 @@
     }: let
       defaultShell = {
         packages = with pkgs; [
-          just
+          bashInteractive # the default bash supplied by mkShell
+                          # does not support interactive use
+          gnumake
 
           reuse
           eclint
 
           mdbook
           plantuml
+
+          # compilation of the c-runtime to wasm (linker, etc)
+          pkgs.pkgsCross.wasi32.stdenv.cc.bintools
+          # web-assembly binary toolkit; i.e. inspecting wasm files & co
+          wabt
+
+          # compilation database for c language server for c-runtime dev
+          bear
         ];
+
+        # compilation of the c-runtime to wasm (compiler)
+        CC_WASM="${pkgs.pkgsCross.wasi32.stdenv.cc}/bin/${pkgs.pkgsCross.wasi32.stdenv.cc.targetPrefix}cc";
 
         shellHook = ''
           unset SOURCE_DATE_EPOCH
-          just --list --list-heading $'just <task>:\n'
+          echo "make <task>:"
+          make list
         '';
       };
     in {

@@ -24,6 +24,21 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 
 -----------
 
+# Architecture
+
+- [Introduction]()
+
+# Builder
+
+- [Public API]()
+- [Transformation/Lowering]()
+
+# Backends
+
+- [c-runtime](./architecture/backends/c-runtime.md)
+
+-----------
+
 # Development
 
 - [Introduction]()
@@ -41,7 +56,7 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 
 - [Options]()
     - [MLIR](development/backends/mlir.md)
-    - [WAMS]()
+    - [WAMS](development/backends/wasm.md)
     - [Custom Made]()
     - [Existing C-backend]()
 - [Comparison](development/backends/comparison.md)
