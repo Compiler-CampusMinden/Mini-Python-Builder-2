@@ -37,7 +37,9 @@
     }: let
       defaultShell = {
         packages = with pkgs; [
-          just
+          bashInteractive # the default bash supplied by mkShell
+                          # does not support interactive use
+          gnumake
 
           reuse
           eclint
