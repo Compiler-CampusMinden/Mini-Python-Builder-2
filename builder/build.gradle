@@ -10,7 +10,7 @@ repositories {
 processResources {
     // copy the folder as is into the jar-archive,
     // thus making it available as a resource with path 'c-runtime'
-    from('c-runtime') {
+    from('../c-runtime') {
         into('c-runtime')
     }
 }

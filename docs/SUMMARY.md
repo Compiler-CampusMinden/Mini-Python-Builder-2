@@ -27,6 +27,7 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 # Architecture
 
 - [Introduction]()
+- [Components](./architecture/components.md)
 
 # Builder
 
@@ -36,6 +37,12 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 # Backends
 
 - [c-runtime](./architecture/backends/c-runtime.md)
+
+-----------
+
+# Contributing
+
+- [Project Structure](./contributing/structure.md)
 
 -----------
 
