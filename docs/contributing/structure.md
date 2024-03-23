@@ -5,3 +5,4 @@
 - integrated (where necessary, e.g. to build artifacts) via top-level makefile
 - c-runtime: c code, custom makefile
 - builder: java, gradle
+- builder-examples: java, gradle - showcase of builder api (& tests that need to/can be executed manually)

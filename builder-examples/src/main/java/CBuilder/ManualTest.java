@@ -13,8 +13,6 @@ import java.util.List;
 
 /**
  * Allows to test the Builder without involving the ast or anything.
- *
- * TODO remove this when manual testing of this is not needed anymore
  */
 public class ManualTest {
 

@@ -1,0 +1,3 @@
+rootProject.name = "mini-python-builder"
+include 'builder'
+include 'builder-examples'

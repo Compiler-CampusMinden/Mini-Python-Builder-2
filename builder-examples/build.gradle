@@ -1,0 +1,43 @@
+plugins {
+    id 'application'
+}
+
+group = 'de.hsbi.mini-python-builder'
+
+application {
+    mainClass = 'CBuilder.ManualTest'
+}
+
+def extraMainClasses = [
+    'boolean-test': 'CBuilder.manualTests.BooleanTest',
+    'class-test': 'CBuilder.manualTests.ClassTest',
+    'int-ops': 'CBuilder.manualTests.IntOps',
+    'str-ops': 'CBuilder.manualTests.StrOps',
+]
+// the examples have more than one main class,
+// allow running each of them in the generated distribution.
+// could also do something similar to define additional run tasks;
+// but: experience shows that gradle likes to 'swallow'
+// the stdout of run executions - as these classes
+// tend to be used for testing let's just don't
+extraMainClasses.each { scriptName, driverClass ->
+    Task t = task("startScripts_" + scriptName,
+                group: 'CLI Script Generation',
+                type: CreateStartScripts) {
+        applicationName = scriptName
+        mainClass = driverClass
+
+        classpath = startScripts.classpath
+        defaultJvmOpts = startScripts.defaultJvmOpts
+        executableDir = startScripts.executableDir
+        optsEnvironmentVar = startScripts.optsEnvironmentVar
+        outputDir = startScripts.outputDir
+        unixStartScriptGenerator = startScripts.unixStartScriptGenerator
+        windowsStartScriptGenerator = startScripts.windowsStartScriptGenerator
+    }
+    startScripts.dependsOn(t)
+}
+
+dependencies {
+    implementation project(':builder')
+}
