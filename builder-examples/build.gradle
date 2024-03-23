@@ -8,12 +8,13 @@ application {
     mainClass = 'CBuilder.ManualTest'
 }
 
-def extraMainClasses = [
-    'boolean-test': 'CBuilder.manualTests.BooleanTest',
-    'class-test': 'CBuilder.manualTests.ClassTest',
-    'int-ops': 'CBuilder.manualTests.IntOps',
-    'str-ops': 'CBuilder.manualTests.StrOps',
-]
+// put the script-name -> mainClass relations
+// into a directory with scriptName = file name & mainClass = file content
+// in order to allow the makefile get info about the
+// list of scripts...
+def extraMainClasses = fileTree("${project.projectDir}/main-classes").collectEntries { extraMainClassDef ->
+    [extraMainClassDef.name, extraMainClassDef.getText('utf-8').trim()]
+}
 // the examples have more than one main class,
 // allow running each of them in the generated distribution.
 // could also do something similar to define additional run tasks;

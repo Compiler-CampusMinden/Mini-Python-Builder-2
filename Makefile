@@ -54,6 +54,21 @@ c-runtime/lib_wasm-docker:
 		sh -c \
 		'cd /workdir && make c-runtime/lib_wasm'
 
+EXAMPLES := $(addprefix example/,$(notdir $(wildcard builder-examples/main-classes/*)))
+.PHONY: $(EXAMPLES)
+$(EXAMPLES):
+# gradle sometimes swallows stdout content
+# when executing via `./gradlew run` - prevent that
+# by running the examples outside of gradle
+	./gradlew installDist
+# note: gradle sets the working directory to the project directory
+# before execution - do this here too
+	cd builder-examples && ./build/install/builder-examples/bin/$(@F)
+
+.PHONY: test
+test:
+	./gradlew test
+
 # check formatting rules are adhered to
 .PHONY: format
 format:
