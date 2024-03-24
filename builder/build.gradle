@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'de.hsbi.mini-python-builder'
+group = 'mini-python-builder'
 version = '0.0.1'
 
 repositories {

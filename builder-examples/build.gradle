@@ -2,7 +2,7 @@ plugins {
     id 'application'
 }
 
-group = 'de.hsbi.mini-python-builder'
+group = 'mini-python-builder'
 
 application {
     mainClass = 'CBuilder.ManualTest'
