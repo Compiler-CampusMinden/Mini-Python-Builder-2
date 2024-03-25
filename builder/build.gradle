@@ -1,6 +1,86 @@
+import org.tukaani.xz.XZInputStream
+import java.security.MessageDigest
+import java.security.DigestInputStream
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath group: 'org.tukaani', name: 'xz', version: '1.9'
+  }
+}
+
 plugins {
     id 'java-library'
     id 'maven-publish'
+}
+
+abstract class DecompressXz extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getCompressed()
+
+    @OutputFile
+    abstract RegularFileProperty getUncompressed()
+
+    @TaskAction
+    void decompress() {
+        def in = new XZInputStream(new FileInputStream(compressed.get().asFile))
+        uncompressed.get().asFile.withOutputStream { out ->
+            out << in
+        }
+    }
+}
+
+abstract class ExtractRawTarArchive extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getArchive()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @TaskAction
+    void extract() {
+        ant.untar(src: archive.get().asFile, dest: outputDir.get().asFile)
+    }
+}
+
+abstract class ExtractZipArchive extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getArchive()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @TaskAction
+    void extract() {
+        ant.unzip(src: archive.get().asFile, dest: outputDir.get().asFile)
+    }
+}
+
+abstract class Sha256 extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getInputFile()
+
+    @OutputFile
+    abstract RegularFileProperty getOutputFile()
+
+    @TaskAction
+    void calculateHashum() {
+        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+        inputFile.get().asFile.withInputStream { in ->
+            DigestInputStream dis = new DigestInputStream(in, sha);
+            // read the whole stream
+            while (dis.read() != -1) {}
+        }
+        outputFile.get().asFile.withOutputStream { out ->
+            // base32 would be preferred for the use-case here
+            // (in constrast to base64 safe for url/file-name use
+            // bas32 guarantees 1-to-1 mapping even on case insensitive fs's)
+            // but base32 isn't in standard java...
+            out << Base64.getUrlEncoder().encode(sha.digest())
+        }
+    }
 }
 
 group = 'mini-python-builder'
@@ -8,14 +88,30 @@ version = '0.0.1'
 
 repositories {
     mavenCentral()
+
+    // this allows downloading the wasmtime cli executables
+    // with gradle, benefitting from its caching, etc.
+    exclusiveContent {
+        forRepository {
+            ivy {
+                url 'https://github.com/'
+
+                patternLayout {
+                    // the urls look like this https://github.com/bytecodealliance/wasmtime/releases/download/v19.0.0/wasmtime-v19.0.0-x86_64-linux.tar.xz
+                    artifact '/[organisation]/[module]/releases/download/v[revision]/[module]-v[revision]-[classifier].[ext]'
+                }
+
+                metadataSources { artifact() }
+            }
+        }
+        filter {
+            includeModule 'bytecodealliance', 'wasmtime'
+        }
+    }
 }
 
-processResources {
-    // copy the folder as is into the jar-archive,
-    // thus making it available as a resource with path 'c-runtime'
-    from('../c-runtime') {
-        into('c-runtime')
-    }
+configurations {
+    wasmtimeExes
 }
 
 dependencies {
@@ -25,6 +121,66 @@ dependencies {
     // the ManualTest class (from the examples)
     // for automatic tests of the builder itself
     testImplementation project(':builder-examples')
+
+    // allow to determine where to extract the wasmtime
+    // cli executable and the cruntime wasm library
+    implementation 'dev.dirs:directories:26'
+
+    // wasmtime cli executables to include in the resources
+    // this determines on which platforms the wasm-backend
+    // can execute the generated code.
+    // make sure to to only specify a single version per platform,
+    // otherwise things *will* break
+    wasmtimeExes 'bytecodealliance:wasmtime:19.0.0:aarch64-linux@tar.xz'
+    wasmtimeExes 'bytecodealliance:wasmtime:19.0.0:aarch64-macos@tar.xz'
+    wasmtimeExes 'bytecodealliance:wasmtime:19.0.0:x86_64-linux@tar.xz'
+    wasmtimeExes 'bytecodealliance:wasmtime:19.0.0:x86_64-macos@tar.xz'
+    wasmtimeExes 'bytecodealliance:wasmtime:19.0.0:x86_64-windows@zip'
+    //This maps to the pattern: [organisation]:[module]:[revision]:[classifier]@[ext]
+}
+
+processResources {
+    // copy the folder as is into the jar-archive,
+    // thus making it available as a resource with path 'c-runtime'
+    from('../c-runtime') {
+        into('c-runtime')
+        // ideally this could just ignore where
+        // the c-runtime build-"system" stores
+        // it's (temporary) artifacts,
+        // but (some of) the artifacts are needed
+        // as a resource too (see below)
+        exclude('doc')
+        exclude('bin')
+        exclude('lib')
+        exclude('out')
+        exclude('out_wasm')
+    }
+    from('../c-runtime') {
+        into('lib')
+
+        include 'lib/mpy_cruntime.wasm'
+
+        eachFile {
+            // yes, this is a relative path, but this path
+            // is not relative to the directory these files are copied
+            // *into* (wasmtime-exes)
+            // but instead relative to the resource directory.
+            // therefore: repat the 'wasmtime-exes' directory here...
+            relativePath = new RelativePath(true, "lib", name)
+        }
+
+        // yes, this really is needed, because even though the files
+        // don't land there and the directory isn't included,
+        // the files come from some directory, and so gradle
+        // will create this directory
+        includeEmptyDirs = false
+    }
+    into('lib') {
+        from(task('mpy_cruntimeWasm-hash', type: Sha256) {
+            inputFile = layout.projectDirectory.file('../c-runtime/lib/mpy_cruntime.wasm')
+            outputFile = layout.buildDirectory.file('mpy_cruntimeWasm-hashes/mpy_cruntime.wasm.sha256')
+        }.outputFile)
+    }
 }
 
 tasks.named('test') {
@@ -44,5 +200,71 @@ publishing {
             name = 'local'
             url = layout.buildDirectory.dir("mvn-repo")
         }
+    }
+}
+
+// download and extract wasmtime cli executables
+// (see dependencies for which architectures are included)
+
+configurations.wasmtimeExes.each { dependency ->
+    // split something like wasmtime-19.0.0-x86_64-linux.tar.xz
+    // into something like [wasmtime, 19.0.0, x86_64-linux.tar.xz]
+    def dependencyMetaParts = dependency.name.split("-", 3)
+    def version = dependencyMetaParts[1]
+    def systemAndFileEnding = dependencyMetaParts[2].split("\\.", 2)
+    def system = systemAndFileEnding[0]
+    def fileEnding = systemAndFileEnding[1]
+
+    def extractArchive = null
+    if (dependency.name.endsWith("zip")) {
+        extractArchive = task("extractWasmtimeCli-${system}", type: ExtractZipArchive) {
+            archive = dependency
+        }
+    } else if (dependency.name.endsWith(".tar.xz")) {
+        def decompress = task("decompressWasmtimeCli-${system}", type: DecompressXz) {
+            compressed = dependency
+            uncompressed = layout.buildDirectory.file("wasmtime-cli-archives/v${version}-${system}.tar")
+        }
+        extractArchive = task("extractWasmtimeCli-${system}", type: ExtractRawTarArchive) {
+            archive = decompress.uncompressed
+        }
+    } else {
+        throw new Exception("unsupported file ending ${fileEnding}")
+    }
+    extractArchive.outputDir = layout.buildDirectory.dir("wasmtime-cli-exes/v${version}-${system}")
+
+    def hash = task("wasmtimeCli-${system}-hash", type: Sha256) {
+        inputFile = extractArchive.outputDir.asFileTree.matching { include '*/wasmtime' include '*/wasmtime.exe' }.getSingleFile()
+        outputFile = layout.buildDirectory.file("wasmtime-cli-exe-hashes/${system}.sha256")
+    }
+    hash.dependsOn(extractArchive)
+
+    processResources.into("wasmtime-exes") {
+        from(extractArchive.outputDir)
+        include '*/wasmtime'
+        include '*/wasmtime.exe'
+
+        eachFile {
+            // yes, this is a relative path, but this path
+            // is not relative to the directory these files are copied
+            // *into* (wasmtime-exes)
+            // but instead relative to the resource directory.
+            // therefore: repat the 'wasmtime-exes' directory here...
+            relativePath = new RelativePath(true, "wasmtime-exes", system, name)
+        }
+        // yes, this really is needed, because even though the files
+        // don't land there and the directory isn't included,
+        // the files come from some directory, and so gradle
+        // will create this directory
+        includeEmptyDirs = false
+        filePermissions {
+            user {
+                read = true
+                execute = true
+            }
+        }
+    }
+    processResources.into("wasmtime-exes") {
+        from hash.outputFile
     }
 }

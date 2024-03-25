@@ -4,8 +4,12 @@ plugins {
 
 group = 'mini-python-builder'
 
+repositories {
+    mavenCentral()
+}
+
 application {
-    mainClass = 'CBuilder.ManualTest'
+    mainClass = 'minipython.builder.cbuilder.run.ManualTest'
 }
 
 // put the script-name -> mainClass relations
