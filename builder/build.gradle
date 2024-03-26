@@ -233,11 +233,21 @@ configurations.wasmtimeExes.each { dependency ->
     }
     extractArchive.outputDir = layout.buildDirectory.dir("wasmtime-cli-exes/v${version}-${system}")
 
+    // unfortunately the files need to be spelled out here explicitly,
+    // since matching them via fileTree and a wildcard does not work
+    // (the match operation would be executed before any task actually runs,
+    // i.e. for a clean build, before the archives have been extracted,
+    // and would therefore fail on clean builds)
+    def hashInput = null
+    if (system.contains("windows")) {
+        hashInput = extractArchive.outputDir.file("wasmtime-v${version}-${system}/wasmtime.exe")
+    } else {
+        hashInput = extractArchive.outputDir.file("wasmtime-v${version}-${system}/wasmtime")
+    }
     def hash = task("wasmtimeCli-${system}-hash", type: Sha256) {
-        inputFile = extractArchive.outputDir.asFileTree.matching { include '*/wasmtime' include '*/wasmtime.exe' }.getSingleFile()
+        inputFile = hashInput
         outputFile = layout.buildDirectory.file("wasmtime-cli-exe-hashes/${system}.sha256")
     }
-    hash.dependsOn(extractArchive)
 
     processResources.into("wasmtime-exes") {
         from(extractArchive.outputDir)
