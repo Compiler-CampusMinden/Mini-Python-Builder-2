@@ -51,13 +51,28 @@
           pkgs.pkgsCross.wasi32.stdenv.cc.bintools
           # web-assembly binary toolkit; i.e. inspecting wasm files & co
           wabt
+          # webassembly runtime
+          wasmtime
 
           # compilation database for c language server for c-runtime dev
           bear
+
+          # builder/c-runtime tests
+          gcc
+          clang
+          clang-tools
+          valgrind
+
+          # c-runtime docs
+          doxygen
         ];
+
+        JAVA_HOME = pkgs.openjdk_headless.home;
 
         # compilation of the c-runtime to wasm (compiler)
         CC_WASM="${pkgs.pkgsCross.wasi32.stdenv.cc}/bin/${pkgs.pkgsCross.wasi32.stdenv.cc.targetPrefix}cc";
+
+        MPY_BUILDER_WASM_USE_SYSTEM_WASMTIME = 1;
 
         shellHook = ''
           unset SOURCE_DATE_EPOCH
