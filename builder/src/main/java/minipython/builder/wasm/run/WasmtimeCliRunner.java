@@ -11,7 +11,7 @@ public class WasmtimeCliRunner implements WasmRunner {
 
 	@Override
 	public void run(String wat) throws Exception {
-        Path watFile = Files.createTempFile("mpy_builder_output", "wat");
+        Path watFile = Files.createTempFile("mpy_builder_output", ".wat");
         try (OutputStream _out = Files.newOutputStream(watFile)) {
             try (PrintStream out = new PrintStream(_out, false, "UTF-8")) {
                 out.print(wat);
@@ -30,7 +30,9 @@ public class WasmtimeCliRunner implements WasmRunner {
         Process p = wasmtime.start();
         int exitCode = p.waitFor();
         if (exitCode != 0) {
-            throw new Exception("Failed to run wat code, wasmtime exited with code " + exitCode);
+            throw new Exception("Failed to run wat code, wasmtime exited with code " + exitCode + ". generated wat code at '" + watFile + "'");
         }
+        // run was successful - no need to keep the file
+        watFile.toFile().delete();
 	}
 }
