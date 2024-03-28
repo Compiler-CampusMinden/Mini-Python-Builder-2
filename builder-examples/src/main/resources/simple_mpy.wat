@@ -1,6 +1,5 @@
 (module
   ;; import required function from c-runtime library
-  (import "mpy_runtime" "__mpy_builtins_setup" (func $__mpy_builtins_setup))
   (import "mpy_runtime" "__mpy_obj_init_str_static" (func $__mpy_obj_init_str_static (param i32) (result i32)))
   (import "mpy_runtime" "__mpy_call" (func $__mpy_call (param i32 i32 i32) (result i32)))
   (import "mpy_runtime" "__mpy_obj_ref_dec" (func $__mpy_obj_ref_dec (param i32)))
@@ -20,7 +19,6 @@
         ;; 2. iterator variable for the loop copying the string from
         ;;    this module's memory into the c-runtime's memory
         (local i32 i32)
-        call $__mpy_builtins_setup ;; mandatory setup
 
         ;; this code represents the python code `print("Hello World")`
         ;; translated into c-runtime function calls,
@@ -55,7 +53,7 @@
 
         i32.const 12 ;; length of the string "Hello World" + null-byte
         call $__mpy_str_alloc ;; allocate a new string wrapper
-        local.set 0 ;; store a pointer to this string, 
+        local.set 0 ;; store a pointer to this string,
                     ;; we will need this string multiple times
 
         i32.const 4 ;; the string starts at offset 4 in our local memory
