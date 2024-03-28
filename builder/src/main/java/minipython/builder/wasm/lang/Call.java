@@ -4,6 +4,7 @@ import static minipython.builder.wasm.lang.RuntimeImports.MPY_CALL;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_REF_DEC;
 
 import java.util.List;
+import java.util.Optional;
 
 import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
@@ -27,13 +28,27 @@ public record Call(
 
         TupleLiteral positionalArgsParam = new TupleLiteral(positionalArgs);
 
-        return new Block("start of __mpy_call", "end of __mpy_call", "",
-            new Line("", "callable (first arg)"),
-            callable.buildExpression(partOf),
-            new Line("", "positional args in a tuple (second arg)"),
-            positionalArgsParam.buildExpression(partOf),
-            new Line("i32.const 0", "keyword args (third arg)"),
-            new Line("call $__mpy_call")
+        return new Block(
+            "start of __mpy_call",
+            "end of __mpy_call",
+            "",
+            new Block(
+                "  ",
+                new Block(
+                    Optional.of("callable (first arg)"),
+                    Optional.empty(),
+                    "",
+                    new Block("  ", callable.buildExpression(partOf))
+                ),
+                new Block(
+                    Optional.of("positional args in a tuple (second arg)"),
+                    Optional.empty(),
+                    "",
+                    new Block("  ", positionalArgsParam.buildExpression(partOf))
+                ),
+                new Line("i32.const 0", "keyword args (third arg)"),
+                new Line("call $__mpy_call")
+            )
         );
 	}
 
