@@ -105,8 +105,28 @@ extern __MPyObj *__MPyFunc_Object_init;
 
 extern __MPyObj *__mpy_super;
 
-MPY_API void __mpy_builtins_setup(void);
+// when targeting WASM/WASI,
+// this library is compiled as a reactor (see Makefile, also
+// https://github.com/WebAssembly/WASI/blob/main/legacy/application-abi.md#current-unstable-abi
+// )
+// Since a reactor is intended to be a long-lived module,
+// perform builtins initialisation ourselves, instead of requiring
+// other modules that use this library to do it.
+// This also prevents stuff such as multiple dependent modules
+// calling the setup function, etc.
+#ifdef MPY_WASM
+#define MPY_INIT __attribute__((constructor))
+#define MPY_CLEANUP __attribute__((destructor))
+#else
+#define MPY_INIT MPY_API
+#define MPY_CLEANUP MPY_API
+#endif
 
-MPY_API void __mpy_builtins_cleanup(void);
+MPY_INIT void __mpy_builtins_setup(void);
+
+MPY_CLEANUP void __mpy_builtins_cleanup(void);
+
+#undef MPY_INIT
+#undef MPY_CLEANUP
 
 #endif
