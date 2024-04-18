@@ -11,11 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.literal.StringLiteral;
+import minipython.builder.wasm.lang.variables.VariableDeclaration;
 
 /**
  * The top-level element of a MiniPython program.
@@ -24,6 +26,7 @@ public class Module {
     private final List<Statement> body;
     private Set<RuntimeImport> importedRuntimeFunctions = new HashSet<>();
     private List<StringLiteral> strings = new LinkedList<>();
+    private Set<VariableDeclaration> variables = new HashSet<>();
 
     /**
      * This class is used to enforce string creation via \a newString.
@@ -46,6 +49,15 @@ public class Module {
         }
     }
 
+    public class VariableToken {
+        public final Module owner;
+
+        private VariableToken(Module owner) {
+            this.owner = owner;
+        }
+
+    }
+
     public int getMemoryOffsetStringSection() {
         return 0;
     }
@@ -57,6 +69,12 @@ public class Module {
         StringLiteral literal = new StringLiteral(value, new StringToken("string" + strings.size(), this));
         strings.add(literal);
         return literal;
+    }
+
+    public VariableDeclaration newVariable(String name) {
+        VariableDeclaration var = new VariableDeclaration(name, new VariableToken(this));
+        variables.add(var);
+        return var;
     }
 
     /**
@@ -93,7 +111,8 @@ public class Module {
         BlockContent body = body();
         BlockContent init = init(stringMemoryOffset);
         BlockContent initStringWasmFn = initStringWasmFn();
-        BlockContent stringData = stringConstants(stringMemoryOffset);
+        StringConstants stringData = stringConstants(stringMemoryOffset);
+        List<BlockContent> variablesDeclaration = variables.stream().map(v -> v.buildDeclaration(this)).collect(Collectors.toList());
         // this must be called last,
         // as the imports are collected when building
         // the statements/expressions
@@ -103,7 +122,12 @@ public class Module {
             new Line("(module"),
             new Block(
                 "  ",
+                // Ordering: orient from what clang currently generates (or how wasm2wat shows what clang generated) for the c-runtime wasm-lib, i.e:
+                // (function signature types, for whatever reason)
+                // 1. imports
                 imports,
+                // 2. functions
+                // 2.1 main (global statements)
                 new Block(
                     Optional.of("this function represents execution of statements in global (mini)python scope"),
                     Optional.empty(),
@@ -112,6 +136,9 @@ public class Module {
                     body,
                     new Line(")")
                 ),
+                // 2.2 global functions
+                // 2.3 class functions/methods
+                // 2.4 init
                 new Block(
                     Optional.of("this function is responsible for one-time initialisation tasks"),
                     Optional.empty(),
@@ -120,9 +147,22 @@ public class Module {
                     init,
                     new Line(")")
                 ),
+                // 2.5 builder supplied functions (e.g. string init fn)
                 initStringWasmFn,
+                // 3. tables (declaration)
+                // 4. memory (declaration)
                 new Line("(memory 1)"), // TODO(FW): this reserves 1 page (64kb) - dynamically calcualte how much is needed
-                stringData
+                // 5. globals
+                // 5.1 global functions (minipython objects)
+                // 5.2 classes (minipython objects)
+                // 5.3 strings (char* pointers)
+                stringData.globals(),
+                // 5.4 variables
+                new Block(Optional.empty(), variablesDeclaration, Optional.empty(), ""),
+                // 6. exports
+                // 7. table content (indirect function calls)
+                // 8. memory content / static data (e.g. strings)
+                stringData.data()
             ),
             new Line(")")
         ).toString("");
@@ -154,7 +194,10 @@ public class Module {
     }
 
     private BlockContent init(int stringMemoryOffset) {
-        return new Block("  ", stringInit(stringMemoryOffset));
+        return new Block("  ",
+            stringInit(stringMemoryOffset),
+            variableInit()
+        );
     }
 
     private BlockContent initStringWasmFn() {
@@ -234,9 +277,29 @@ public class Module {
         );
     }
 
+    private BlockContent variableInit() {
+        return new Block(
+            "start of variables init",
+            "end of variables init",
+            "",
+            new Block(
+                Optional.empty(),
+                variables.stream().map(v -> v.buildInitialisation(this)).collect(Collectors.toList()),
+                Optional.empty(),
+                "  "
+            )
+        );
+    }
+
+    private record StringConstants(
+        BlockContent globals,
+        BlockContent data
+    ) {
+    }
+
     // string memory + globals
-    private BlockContent stringConstants(int stringMemoryOffset) {
-        List<BlockContent> constants = new LinkedList<>();
+    private StringConstants stringConstants(int stringMemoryOffset) {
+        List<BlockContent> globals = new LinkedList<>();
 
         StringBuilder strings = new StringBuilder();
         strings.append("(data (i32.const %d) \"".formatted(stringMemoryOffset));
@@ -245,13 +308,14 @@ public class Module {
             strings.append(lit.value());
             strings.append("\\00");
 
-            constants.add(new Line("(global $%s (mut i32) (i32.const 0))".formatted(lit.token().identifier)));
+            globals.add(new Line("(global $%s (mut i32) (i32.const 0))".formatted(lit.token().identifier)));
         }
 
         strings.append("\")");
 
-        constants.add(new Line(strings.toString()));
-
-        return new Block(Optional.empty(), constants, Optional.empty(), "");
+        return new StringConstants(
+            new Block(Optional.empty(), globals, Optional.empty(), ""),
+            new Line(strings.toString())
+        );
     }
 }
