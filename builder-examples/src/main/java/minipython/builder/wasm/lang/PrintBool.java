@@ -1,10 +1,14 @@
 package minipython.builder.wasm.lang;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
+import minipython.builder.wasm.lang.functions.FunctionDeclaration;
 import minipython.builder.wasm.lang.literal.BoolLiteral;
+import minipython.builder.wasm.lang.variables.VariableDeclaration;
+import minipython.builder.wasm.lang.variables.VariableAssignment;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -13,7 +17,12 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
  *
  * Equivalent (Mini-)Python code:
  * ```python
- * print(True)
+ * a = True
+ *
+ * def printA():
+ *   print(a)
+ *
+ * printA()
  * ```
  */
 public class PrintBool {
@@ -21,12 +30,22 @@ public class PrintBool {
     public static void main(String[] args) throws Exception {
         List<Statement> module = new ArrayList<>();
         Module mod = new Module(module);
+        VariableDeclaration varA = mod.newVariable("a");
 
-        module.add(new Call(
+        List<Statement> printABody = new LinkedList<>();
+        FunctionDeclaration printA = mod.newFunction("printA", printABody);
+        printABody.add(new Call(
             Builtins.FUNCTION_PRINT,
             List.of(new Expression[] {
-                new BoolLiteral(true)
+                varA
             })
+        ));
+
+
+        module.add(new VariableAssignment(varA, new BoolLiteral(true)));
+        module.add(new Call(
+            printA,
+            List.of()
         ));
 
         new WasmtimeCliRunner().run(mod.build());

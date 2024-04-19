@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
+import minipython.builder.wasm.lang.functions.FunctionDeclaration;
 import minipython.builder.wasm.lang.literal.StringLiteral;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 
@@ -27,6 +28,7 @@ public class Module {
     private Set<RuntimeImport> importedRuntimeFunctions = new HashSet<>();
     private List<StringLiteral> strings = new LinkedList<>();
     private Set<VariableDeclaration> variables = new HashSet<>();
+    private Set<FunctionDeclaration> functions = new HashSet<>();
 
     /**
      * This class is used to enforce string creation via \a newString.
@@ -58,6 +60,15 @@ public class Module {
 
     }
 
+    public class FunctionToken {
+        public final Module owner;
+
+        private FunctionToken(Module owner) {
+            this.owner = owner;
+        }
+
+    }
+
     public int getMemoryOffsetStringSection() {
         return 0;
     }
@@ -75,6 +86,12 @@ public class Module {
         VariableDeclaration var = new VariableDeclaration(name, new VariableToken(this));
         variables.add(var);
         return var;
+    }
+
+    public FunctionDeclaration newFunction(String name, List<Statement> body) {
+        FunctionDeclaration func = new FunctionDeclaration(new FunctionToken(this), name, body);
+        functions.add(func);
+        return func;
     }
 
     /**
@@ -112,10 +129,15 @@ public class Module {
         BlockContent init = init(stringMemoryOffset);
         BlockContent initStringWasmFn = initStringWasmFn();
         StringConstants stringData = stringConstants(stringMemoryOffset);
+        List<BlockContent> functionRawBodysDeclaration = functions.stream().map(f -> f.buildRawFuncDeclaration(this)).collect(Collectors.toList());
         List<BlockContent> variablesDeclaration = variables.stream().map(v -> v.buildDeclaration(this)).collect(Collectors.toList());
+        List<BlockContent> functionObjectsDeclaration = functions.stream().map(f -> f.buildFuncObjDeclaration(this)).collect(Collectors.toList());
         // this must be called last,
         // as the imports are collected when building
         // the statements/expressions
+        //
+        // DO NOT call buildXXX() functions below this point,
+        // for the same reason.
         BlockContent imports = imports();
 
         return new Block("",
@@ -137,6 +159,7 @@ public class Module {
                     new Line(")")
                 ),
                 // 2.2 global functions
+                new Block(Optional.empty(), functionRawBodysDeclaration, Optional.empty(), ""),
                 // 2.3 class functions/methods
                 // 2.4 init
                 new Block(
@@ -154,6 +177,7 @@ public class Module {
                 new Line("(memory 1)"), // TODO(FW): this reserves 1 page (64kb) - dynamically calcualte how much is needed
                 // 5. globals
                 // 5.1 global functions (minipython objects)
+                new Block(Optional.empty(), functionObjectsDeclaration, Optional.empty(), ""),
                 // 5.2 classes (minipython objects)
                 // 5.3 strings (char* pointers)
                 stringData.globals(),
@@ -177,6 +201,8 @@ public class Module {
             imports.add(new Line(fn.build()));
         }
 
+        imports.add(new Line("(import \"mpy_runtime\" \"__indirect_function_table\" (table $__mpy_runtime_fn_table 0 funcref))"));
+
         return new Block(Optional.of("imports from c-runtime library"), imports, Optional.empty(), "");
     }
 
@@ -196,7 +222,8 @@ public class Module {
     private BlockContent init(int stringMemoryOffset) {
         return new Block("  ",
             stringInit(stringMemoryOffset),
-            variableInit()
+            variableInit(),
+            functionInit()
         );
     }
 
@@ -285,6 +312,20 @@ public class Module {
             new Block(
                 Optional.empty(),
                 variables.stream().map(v -> v.buildInitialisation(this)).collect(Collectors.toList()),
+                Optional.empty(),
+                "  "
+            )
+        );
+    }
+
+    private BlockContent functionInit() {
+        return new Block(
+            "start of functions init",
+            "end of functions init",
+            "",
+            new Block(
+                Optional.empty(),
+                functions.stream().map(f -> f.buildInitialisation(this)).collect(Collectors.toList()),
                 Optional.empty(),
                 "  "
             )
