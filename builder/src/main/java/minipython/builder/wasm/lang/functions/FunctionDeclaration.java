@@ -111,10 +111,12 @@ public class FunctionDeclaration implements Expression {
                     new Line("call $__mpy_obj_init_object"),
                     new Line("call $__mpy_obj_return")
                 ),
-                new Line(")")
+                new Line(")"),
                 // 5. cleanup (not implemented yet)
                 // 5.1 arguments
+                new Block(Optional.empty(), arguments.stream().map(arg -> arg.buildCleanup(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
                 // 5.2 declared variables
+                new Block(Optional.empty(), localVariables.stream().map(var -> var.buildCleanup(partOf)).collect(Collectors.toList()), Optional.empty(), "")
                 // 6. return value
                 // (implicit, i.e. the value put on the stack inside the earlyReturn
                 // function body block)

@@ -1,6 +1,7 @@
 package minipython.builder.wasm.lang.variables;
 
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_INIT_OBJECT;
+import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_REF_DEC;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_REF_INC;
 
 import minipython.builder.BlockContent;
@@ -95,6 +96,15 @@ public class VariableDeclaration implements Expression {
             new Line("%s.set $%s".formatted(kind(), name.value())),
             new Line("%s.get $%s".formatted(kind(), name.value())),
             new Line("call $__mpy_obj_ref_inc")
+        );
+    }
+
+    public BlockContent buildCleanup(Module partOf) {
+        partOf.declareRuntimeImport(MPY_OBJ_REF_DEC);
+        return new Block(
+            "",
+            new Line("%s.get $%s".formatted(kind(), name.value())),
+            new Line("call $__mpy_obj_ref_dec")
         );
     }
 
