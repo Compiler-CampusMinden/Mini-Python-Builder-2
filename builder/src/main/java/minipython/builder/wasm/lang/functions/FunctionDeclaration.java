@@ -6,6 +6,7 @@ import static minipython.builder.wasm.lang.RuntimeImports.MPY_ARGS_INIT_MALLOCED
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_INIT_FUNC;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_INIT_OBJECT;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_REF_INC;
+import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_RETURN;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -72,7 +73,7 @@ public class FunctionDeclaration implements Expression {
     }
 
     public BlockContent buildRawFuncDeclaration(Module partOf) {
-        partOf.declareRuntimeImport(MPY_OBJ_INIT_OBJECT);
+        partOf.declareRuntimeImports(MPY_OBJ_INIT_OBJECT, MPY_OBJ_RETURN);
         return new Block(
             "",
             // required so that the init code can take a reference to the function
@@ -91,12 +92,32 @@ public class FunctionDeclaration implements Expression {
                 new Block(Optional.empty(), localVariables.stream().map(var -> var.buildDeclaration(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
                 // 2. argument extraction
                 buildArgumentExtraction(partOf),
-                // local variables initialisation (null -> None)
+                // 3. local variables initialisation (null -> None)
                 new Block(Optional.empty(), localVariables.stream().map(var -> var.buildInitialisation(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
-                // 4. function body
-                new Block(Optional.empty(), body.stream().map(s -> s.buildStatement(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
-                // 5. return value
-                new Line("call $__mpy_obj_init_object")
+                // explicit return statements:
+                // put the return value on the stack,
+                // call __mpy_obj_return on it,
+                // and unconditionally jump to earlyReturn
+                // (i.e. the end of the block).
+                // After the block,
+                // - first cleanup happens
+                // - then the value that was on top of the stack,
+                //    before the jump, is returned
+                new Line("(block $earlyReturn (result i32)"),
+                new Block("  ",
+                    // 4. function body
+                    new Block(Optional.empty(), body.stream().map(s -> s.buildStatement(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
+                    // 5. create implicit/automatic return value
+                    new Line("call $__mpy_obj_init_object"),
+                    new Line("call $__mpy_obj_return")
+                ),
+                new Line(")")
+                // 5. cleanup (not implemented yet)
+                // 5.1 arguments
+                // 5.2 declared variables
+                // 6. return value
+                // (implicit, i.e. the value put on the stack inside the earlyReturn
+                // function body block)
             ),
             new Line(")")
         );
