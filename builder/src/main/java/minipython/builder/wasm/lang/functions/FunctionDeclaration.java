@@ -7,9 +7,11 @@ import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_INIT_FUNC;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_INIT_OBJECT;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_REF_INC;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import minipython.builder.BlockContent;
@@ -40,6 +42,8 @@ public class FunctionDeclaration implements Expression {
 
     private final List<VariableDeclaration> arguments = new LinkedList<>();
 
+    private final Set<VariableDeclaration> localVariables = new HashSet<>();
+
     public FunctionDeclaration(FunctionToken token, StringLiteral name, List<Statement> body) {
         this.name = name;
         this.token = token;
@@ -54,6 +58,12 @@ public class FunctionDeclaration implements Expression {
         VariableDeclaration arg = new VariableDeclaration(name, new FunctionVariableToken(this));
         arguments.add(arg);
         return arg;
+    }
+
+    public VariableDeclaration addLocalVariable(StringLiteral name) {
+        VariableDeclaration  var = new VariableDeclaration(name, new FunctionVariableToken(this));
+        localVariables.add(var);
+        return var;
     }
 
     @Override
@@ -77,8 +87,12 @@ public class FunctionDeclaration implements Expression {
                 new Line("(local $argHelper i32)"),
                 // 1.2 arguments
                 new Block(Optional.empty(), arguments.stream().map(arg -> arg.buildDeclaration(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
+                // 1.3 local variables
+                new Block(Optional.empty(), localVariables.stream().map(var -> var.buildDeclaration(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
                 // 2. argument extraction
                 buildArgumentExtraction(partOf),
+                // local variables initialisation (null -> None)
+                new Block(Optional.empty(), localVariables.stream().map(var -> var.buildInitialisation(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
                 // 4. function body
                 new Block(Optional.empty(), body.stream().map(s -> s.buildStatement(partOf)).collect(Collectors.toList()), Optional.empty(), ""),
                 // 5. return value

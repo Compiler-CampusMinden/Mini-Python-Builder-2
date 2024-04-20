@@ -44,9 +44,11 @@ public class VariableDeclaration implements Expression {
     /**
      * Create a new local variable declaration.
      *
-     * Create new variables for arguments with \a {@link FunctionDeclaration#addArgument(String)}.
+     * Create new variables for arguments with \a {@link FunctionDeclaration#addArgument(StringLiteral)}.
+     * Create new variables for local variables with \a {@link FunctionDeclaration#addLocalVariable(StringLiteral)}.
      *
-     * @see FunctionDeclaration#addArgument(String)
+     * @see FunctionDeclaration#addArgument(StringLiteral)
+     * @see FunctionDeclaration#addLocalVariable(StringLiteral)
      */
     public VariableDeclaration(StringLiteral name, FunctionVariableToken token) {
         this.token = token;
