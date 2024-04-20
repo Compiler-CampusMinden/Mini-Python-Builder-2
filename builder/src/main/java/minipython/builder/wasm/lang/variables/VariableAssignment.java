@@ -18,11 +18,11 @@ public record VariableAssignment(
     @Override
     public BlockContent buildStatement(Module partOf) {
         return new Block(
-            "start of assignment to '%s'".formatted(target.name()),
-            "end of assignment to '%s'".formatted(target.name()),
+            "start of assignment to %s '%s'".formatted(target.kind(), target.name()),
+            "end of assignment to %s '%s'".formatted(target.kind(), target.name()),
             "",
             value.buildExpression(partOf),
-            new Line("global.set $%s".formatted(target.name()))
+            new Line("%s.set $%s".formatted(target.kind(), target.name()))
         );
     }
 }

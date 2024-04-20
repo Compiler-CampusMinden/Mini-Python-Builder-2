@@ -82,13 +82,13 @@ public class Module {
         return literal;
     }
 
-    public VariableDeclaration newVariable(String name) {
+    public VariableDeclaration newVariable(StringLiteral name) {
         VariableDeclaration var = new VariableDeclaration(name, new VariableToken(this));
         variables.add(var);
         return var;
     }
 
-    public FunctionDeclaration newFunction(String name, List<Statement> body) {
+    public FunctionDeclaration newFunction(StringLiteral name, List<Statement> body) {
         FunctionDeclaration func = new FunctionDeclaration(new FunctionToken(this), name, body);
         functions.add(func);
         return func;

@@ -30,4 +30,7 @@ public class RuntimeImports {
     public final static RuntimeImport MPY_STR_ALLOC = new RuntimeImport("__mpy_str_alloc", List.of(new RuntimeImportType[]{I32}), Optional.of(I32));
     public final static RuntimeImport MPY_STR_SET = new RuntimeImport("__mpy_str_set", List.of(new RuntimeImportType[]{I32, I32, I32}), Optional.empty());
     public final static RuntimeImport MPY_STR_INTO_CSTR = new RuntimeImport("__mpy_str_into_cstr", List.of(new RuntimeImportType[]{I32}), Optional.of(I32));
+    public final static RuntimeImport MPY_ARGS_INIT_MALLOCED = new RuntimeImport("__mpy_args_init_malloced", List.of(new RuntimeImportType[]{I32, I32, I32, I32}), Optional.of(I32));
+    public final static RuntimeImport MPY_ARGS_GET_POSITIONAL = new RuntimeImport("__mpy_args_get_positional", List.of(new RuntimeImportType[]{I32, I32, I32}), Optional.of(I32));
+    public final static RuntimeImport MPY_ARGS_MALLOCED = new RuntimeImport("__mpy_args_finish_malloced", List.of(new RuntimeImportType[]{I32}), Optional.empty());
 }

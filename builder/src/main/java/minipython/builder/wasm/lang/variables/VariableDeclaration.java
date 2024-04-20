@@ -9,6 +9,9 @@ import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
 import minipython.builder.wasm.lang.Module;
 import minipython.builder.wasm.lang.Module.VariableToken;
+import minipython.builder.wasm.lang.functions.FunctionDeclaration;
+import minipython.builder.wasm.lang.functions.FunctionDeclaration.FunctionVariableToken;
+import minipython.builder.wasm.lang.literal.StringLiteral;
 
 /**
  * A variable declaration; in contrast to MiniPython itself, variables must be declared explicitly before assignment/referencing them.
@@ -19,9 +22,11 @@ import minipython.builder.wasm.lang.Module.VariableToken;
  */
 public class VariableDeclaration implements Expression {
 
-    private final String name;
+    private final StringLiteral name;
 
     private final Object token;
+
+    private final boolean isGlobal;
 
     /**
      * Create a new global variable declaration.
@@ -30,22 +35,52 @@ public class VariableDeclaration implements Expression {
      *
      * @see Module#newVariable(String)
      */
-    public VariableDeclaration(String name, VariableToken token) {
+    public VariableDeclaration(StringLiteral name, VariableToken token) {
         this.token = token;
         this.name = name;
+        this.isGlobal = true;
+    }
+
+    /**
+     * Create a new local variable declaration.
+     *
+     * Create new variables for arguments with \a {@link FunctionDeclaration#addArgument(String)}.
+     *
+     * @see FunctionDeclaration#addArgument(String)
+     */
+    public VariableDeclaration(StringLiteral name, FunctionVariableToken token) {
+        this.token = token;
+        this.name = name;
+        this.isGlobal = false;
+    }
+
+    protected boolean isGlobal() {
+        return this.isGlobal;
+    }
+
+    protected String kind() {
+        return this.isGlobal ? "global" : "local";
     }
 
     public String name() {
+        return name.value();
+    }
+
+    public StringLiteral nameLiteral() {
         return name;
     }
 
     @Override
     public BlockContent buildExpression(Module partOf) {
-        return new Line("global.get $%s".formatted(name));
+        return new Line("%s.get $%s".formatted(kind(), name.value()));
     }
 
     public BlockContent buildDeclaration(Module partOf) {
-        return new Line("(global $%s (mut i32) (i32.const 0))".formatted(name));
+        if (isGlobal) {
+            return new Line("(global $%s (mut i32) (i32.const 0))".formatted(name.value()));
+        } else {
+            return new Line("(local $%s i32)".formatted(name.value()));
+        }
     }
 
     public BlockContent buildInitialisation(Module partOf) {
@@ -55,8 +90,8 @@ public class VariableDeclaration implements Expression {
             "",
             // TODO(FW): init new None here, instead of plain object()
             new Line("call $__mpy_obj_init_object"),
-            new Line("global.set $%s".formatted(name)),
-            new Line("global.get $%s".formatted(name)),
+            new Line("%s.set $%s".formatted(kind(), name.value())),
+            new Line("%s.get $%s".formatted(kind(), name.value())),
             new Line("call $__mpy_obj_ref_inc")
         );
     }
@@ -65,7 +100,7 @@ public class VariableDeclaration implements Expression {
     public BlockContent buildStatement(Module partOf) {
         // referencing a variable delcaration as a statement
         // is simply a no-op
-        return new Line("", "variable '%s'".formatted(name));
+        return new Line("", "%s variable '%s'".formatted(kind(), name.value()));
     }
 
 }

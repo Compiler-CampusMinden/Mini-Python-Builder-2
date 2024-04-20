@@ -24,7 +24,7 @@ public class PrintInt {
     public static void main(String[] args) throws Exception {
         List<Statement> module = new ArrayList<>();
         Module mod = new Module(module);
-        VariableDeclaration varA = mod.newVariable("a");
+        VariableDeclaration varA = mod.newVariable(mod.newString("a"));
 
         module.add(new VariableAssignment(varA, new IntLiteral(42)));
         module.add(new Call(
