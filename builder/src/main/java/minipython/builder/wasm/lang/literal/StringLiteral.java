@@ -44,6 +44,10 @@ public record StringLiteral(
         );
 	}
 
+    public BlockContent buildExpressionCString(Module partOf) {
+        return new Line("global.get $%s".formatted(token.identifier));
+    }
+
 	@Override
 	public BlockContent buildStatement(Module partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_REF_DEC);

@@ -17,6 +17,7 @@ import minipython.builder.wasm.lang.RuntimeImport.RuntimeImportType;
 public class RuntimeImports {
 
     public final static RuntimeImport MPY_BUILTINS_GET_FN_PRINT = new RuntimeImport("__mpy_builtins_get_fn_print", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_OBJ_GET_ATTR = new RuntimeImport("__mpy_obj_get_attr", List.of(new RuntimeImportType[]{I32, I32}), Optional.of(I32));
     public final static RuntimeImport MPY_OBJ_REF_DEC = new RuntimeImport("__mpy_obj_ref_dec", List.of(new RuntimeImportType[]{I32}), Optional.empty());
     public final static RuntimeImport MPY_OBJ_REF_INC = new RuntimeImport("__mpy_obj_ref_inc", List.of(new RuntimeImportType[]{I32}), Optional.empty());
     public final static RuntimeImport MPY_OBJ_RETURN = new RuntimeImport("__mpy_obj_return", List.of(new RuntimeImportType[]{I32}), Optional.of(I32));
