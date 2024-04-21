@@ -131,7 +131,7 @@ public class FunctionDeclaration implements Expression {
         List<BlockContent> argExtraction = new LinkedList<>();
 
         argExtraction.add(new Block("argHelper creation start", "argHelper created", "",
-            name.buildExpression(partOf),
+            name.buildExpressionCString(partOf),
             new Line("local.get $args"),
             new Line("local.get $kwargs"),
             new Line("i32.const %d".formatted(arguments.size())),
@@ -144,7 +144,7 @@ public class FunctionDeclaration implements Expression {
             argExtraction.add(new Block("arg %s start".formatted(arg.name()), "arg %s end".formatted(arg.name()), "",
                 new Line("local.get $argHelper"),
                 new Line("i32.const %d".formatted(pos)),
-                arg.nameLiteral().buildExpression(partOf),
+                arg.nameLiteral().buildExpressionCString(partOf),
                 new Line("call $__mpy_args_get_positional"),
                 new Line("local.set $%s".formatted(arg.name()))
             ));
