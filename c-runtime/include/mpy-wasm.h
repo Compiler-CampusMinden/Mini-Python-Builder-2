@@ -46,6 +46,8 @@ MPY_API char* __mpy_str_into_cstr(__MPyAllocedStr *str);
 // breaking all C code that compares __MPyObj* pointers
 // against builtin __MPyObj* symbols)
 MPY_API __MPyObj *__mpy_builtins_get_fn_print(void);
+MPY_API __MPyObj *__mpy_builtins_get_fn_super(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_object(void);
 
 // make __mpy_args_init/finish allocating,
 // since returning structs on the stack

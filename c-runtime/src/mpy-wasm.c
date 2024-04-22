@@ -38,6 +38,14 @@ MPY_API __MPyObj *__mpy_builtins_get_fn_print(void) {
     return __MPyFunc_print;
 }
 
+__MPyObj *__mpy_builtins_get_fn_super(void) {
+    return __mpy_super;
+}
+
+__MPyObj *__mpy_builtins_get_type_object(void) {
+    return __MPyType_Object;
+}
+
 __MPyGetArgsState* __mpy_args_init_malloced(const char *funcName, __MPyObj *args, __MPyObj *kwargs, unsigned int countPositionalArgs) {
     __MPyGetArgsState *state = __mpy_checked_malloc(sizeof(__MPyGetArgsState));
 

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
 import minipython.builder.wasm.lang.literal.StringLiteral;
+import minipython.builder.wasm.lang.object.MPyClass;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 
 /**
@@ -29,6 +31,7 @@ public class Module {
     private List<StringLiteral> strings = new LinkedList<>();
     private Set<VariableDeclaration> variables = new HashSet<>();
     private Set<FunctionDeclaration> functions = new HashSet<>();
+    private Set<MPyClass> classes = new HashSet<>();
 
     /**
      * This class is used to enforce string creation via \a newString.
@@ -69,6 +72,14 @@ public class Module {
 
     }
 
+    public class ClassToken {
+        public final Module owner;
+
+        private ClassToken(Module owner) {
+            this.owner = owner;
+        }
+    }
+
     public int getMemoryOffsetStringSection() {
         return 0;
     }
@@ -92,6 +103,12 @@ public class Module {
         FunctionDeclaration func = new FunctionDeclaration(new FunctionToken(this), name, body);
         functions.add(func);
         return func;
+    }
+
+    public MPyClass newClass(StringLiteral name, Expression parent, Map<StringLiteral, Expression> classAttributes) {
+        MPyClass clazz = new MPyClass(new ClassToken(this), name, parent, classAttributes);
+        classes.add(clazz);
+        return clazz;
     }
 
     /**
@@ -130,8 +147,10 @@ public class Module {
         BlockContent initStringWasmFn = initStringWasmFn();
         StringConstants stringData = stringConstants(stringMemoryOffset);
         List<BlockContent> functionRawBodysDeclaration = functions.stream().map(f -> f.buildRawFuncDeclaration(this)).collect(Collectors.toList());
+        List<BlockContent> classRawTypesDeclaration = classes.stream().map(c -> c.buildRawTypeDeclaration(this)).collect(Collectors.toList());
         List<BlockContent> variablesDeclaration = variables.stream().map(v -> v.buildDeclaration(this)).collect(Collectors.toList());
         List<BlockContent> functionObjectsDeclaration = functions.stream().map(f -> f.buildFuncObjDeclaration(this)).collect(Collectors.toList());
+        List<BlockContent> classObjectsDeclaration = classes.stream().map(c -> c.buildTypeObjDeclaration(this)).collect(Collectors.toList());
         // this must be called last,
         // as the imports are collected when building
         // the statements/expressions
@@ -161,6 +180,7 @@ public class Module {
                 // 2.2 global functions
                 new Block(Optional.empty(), functionRawBodysDeclaration, Optional.empty(), ""),
                 // 2.3 class functions/methods
+                new Block(Optional.empty(), classRawTypesDeclaration, Optional.empty(), ""),
                 // 2.4 init
                 new Block(
                     Optional.of("this function is responsible for one-time initialisation tasks"),
@@ -179,6 +199,7 @@ public class Module {
                 // 5.1 global functions (minipython objects)
                 new Block(Optional.empty(), functionObjectsDeclaration, Optional.empty(), ""),
                 // 5.2 classes (minipython objects)
+                new Block(Optional.empty(), classObjectsDeclaration, Optional.empty(), ""),
                 // 5.3 strings (char* pointers)
                 stringData.globals(),
                 // 5.4 variables
@@ -223,7 +244,8 @@ public class Module {
         return new Block("  ",
             stringInit(stringMemoryOffset),
             variableInit(),
-            functionInit()
+            functionInit(),
+            classInit()
         );
     }
 
@@ -326,6 +348,20 @@ public class Module {
             new Block(
                 Optional.empty(),
                 functions.stream().map(f -> f.buildInitialisation(this)).collect(Collectors.toList()),
+                Optional.empty(),
+                "  "
+            )
+        );
+    }
+
+    private BlockContent classInit() {
+        return new Block(
+            "start of classes init",
+            "end of classes init",
+            "",
+            new Block(
+                Optional.empty(),
+                classes.stream().map(c -> c.buildInitialisation(this)).collect(Collectors.toList()),
                 Optional.empty(),
                 "  "
             )

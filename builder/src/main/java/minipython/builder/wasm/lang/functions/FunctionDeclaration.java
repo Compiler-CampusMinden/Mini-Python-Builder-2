@@ -22,6 +22,7 @@ import minipython.builder.wasm.lang.Expression;
 import minipython.builder.wasm.lang.Module;
 import minipython.builder.wasm.lang.Module.FunctionToken;
 import minipython.builder.wasm.lang.literal.StringLiteral;
+import minipython.builder.wasm.lang.object.MPyClass.ClassFunctionToken;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 import minipython.builder.wasm.lang.Statement;
 
@@ -39,6 +40,8 @@ public class FunctionDeclaration implements Expression {
 
     private final Object token;
 
+    private final boolean isGlobal;
+
     private final List<Statement> body;
 
     private final List<VariableDeclaration> arguments = new LinkedList<>();
@@ -49,10 +52,22 @@ public class FunctionDeclaration implements Expression {
         this.name = name;
         this.token = token;
         this.body = body;
+        this.isGlobal = true;
+    }
+
+    public FunctionDeclaration(ClassFunctionToken token, StringLiteral name, List<Statement> body) {
+        this.name = name;
+        this.token = token;
+        this.body = body;
+        this.isGlobal = false;
     }
 
     public String name() {
         return name.value();
+    }
+
+    public StringLiteral nameLiteral() {
+        return name;
     }
 
     public VariableDeclaration addArgument(StringLiteral name) {
@@ -69,6 +84,11 @@ public class FunctionDeclaration implements Expression {
 
     @Override
     public BlockContent buildExpression(Module partOf) {
+        // only valid for global functions,
+        // since local (e.g. class bound) functions
+        // don't have a variable they're
+        // (i.e. their miniopython object) stored in
+        assert(isGlobal);
         return new Line("global.get $%s".formatted(name.value()));
     }
 
@@ -158,11 +178,33 @@ public class FunctionDeclaration implements Expression {
     }
 
     public BlockContent buildFuncObjDeclaration(Module partOf) {
+        // only valid for global functions,
+        // since local (e.g. class bound) functions
+        // don't have a variable they're
+        // (i.e. their miniopython object) stored in
+        assert(isGlobal);
         return new Line("(global $%s (mut i32) (i32.const 0))".formatted(name.value()));
     }
 
     public BlockContent buildInitialisation(Module partOf) {
         partOf.declareRuntimeImports(MPY_OBJ_INIT_FUNC, MPY_OBJ_REF_INC);
+
+        // if the function is global,
+        // save it in the respective global variable.
+        // Otherwise (e.g. class bound)
+        // simply leave its minipython object on the stack
+        // after creation.
+        Block saveGlobal;
+        if (isGlobal) {
+            saveGlobal = new Block(
+                "",
+                new Line("global.set $%s".formatted(name.value())),
+                new Line("global.get $%s".formatted(name.value())),
+                new Line("call $__mpy_obj_ref_inc")
+            );
+        } else {
+            saveGlobal = new Block("");
+        }
 
         return new Block(
             "",
@@ -174,9 +216,7 @@ public class FunctionDeclaration implements Expression {
             // and table index is 0-based,
             // old size is actually the index of the new element
             new Line("call $__mpy_obj_init_func"),
-            new Line("global.set $%s".formatted(name.value())),
-            new Line("global.get $%s".formatted(name.value())),
-            new Line("call $__mpy_obj_ref_inc")
+            saveGlobal
         );
     }
 
