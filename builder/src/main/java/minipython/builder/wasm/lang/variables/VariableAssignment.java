@@ -44,12 +44,13 @@ public record VariableAssignment(
                 "start of assignment to %s '%s'".formatted(target.kind(), target.name()),
                 "end of assignment to %s '%s'".formatted(target.kind(), target.name()),
                 "",
+                // build value first, in case it references the left side (target), e.g. a=a+1 (a = a.__add__(1))
+                value.buildExpression(partOf),
                 new Line("%s.get $%s".formatted(target.kind(), target.name())),
                 new Line("call $__mpy_obj_ref_dec"),
-                value.buildExpression(partOf),
                 new Line("%s.set $%s".formatted(target.kind(), target.name())),
                 new Line("%s.get $%s".formatted(target.kind(), target.name())),
-                new Line("call $__mpy_obj_ref_dec")
+                new Line("call $__mpy_obj_ref_inc")
             );
         }
     }
