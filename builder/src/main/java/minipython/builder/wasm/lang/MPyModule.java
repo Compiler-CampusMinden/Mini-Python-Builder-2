@@ -33,6 +33,16 @@ public class MPyModule {
     private Set<FunctionDeclaration> functions = new HashSet<>();
     private Set<MPyClass> classes = new HashSet<>();
 
+    public final BuiltinStrings BUILTIN_STRINGS = new BuiltinStrings(this);
+
+    public class BuiltinStrings {
+        public final StringLiteral ATTR_FUNC_BOOL;
+
+        private BuiltinStrings(MPyModule owner) {
+            ATTR_FUNC_BOOL = owner.newString("__bool__");
+        }
+    }
+
     /**
      * This class is used to enforce string creation via \a newString.
      *

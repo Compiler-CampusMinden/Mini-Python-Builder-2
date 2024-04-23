@@ -32,6 +32,7 @@ public class RuntimeImports {
     public final static RuntimeImport MPY_TUPLE_ASSIGN = new RuntimeImport("__mpy_tuple_assign", List.of(new RuntimeImportType[]{I32, I32, I32}), Optional.of(I32));
     public final static RuntimeImport MPY_OBJ_INIT_TUPLE = new RuntimeImport("__mpy_obj_init_tuple", List.of(new RuntimeImportType[]{I32}), Optional.of(I32));
     public final static RuntimeImport MPY_CALL = new RuntimeImport("__mpy_call", List.of(new RuntimeImportType[]{I32, I32, I32}), Optional.of(I32));
+    public final static RuntimeImport MPY_BOOLEAN_RAW = new RuntimeImport("__mpy_boolean_raw", List.of(new RuntimeImportType[]{I32}), Optional.of(I32));
     public final static RuntimeImport MPY_OBJ_INIT_STR_STATIC = new RuntimeImport("__mpy_obj_init_str_static", List.of(new RuntimeImportType[]{I32}), Optional.of(I32));
     public final static RuntimeImport MPY_STR_ALLOC = new RuntimeImport("__mpy_str_alloc", List.of(new RuntimeImportType[]{I32}), Optional.of(I32));
     public final static RuntimeImport MPY_STR_SET = new RuntimeImport("__mpy_str_set", List.of(new RuntimeImportType[]{I32, I32, I32}), Optional.empty());
