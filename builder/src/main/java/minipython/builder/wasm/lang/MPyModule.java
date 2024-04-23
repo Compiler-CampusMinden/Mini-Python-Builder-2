@@ -123,16 +123,9 @@ public class MPyModule {
     }
 
     /**
-     * (Internal) \a functionName is used by generated WASM code and must be imported.
-     */
-    public void declareRuntimeImport(RuntimeImport functionName) {
-        this.importedRuntimeFunctions.add(functionName);
-    }
-
-    /**
      * (Internal) \a functionNames are used by generated WASM code and must be imported.
      */
-    public void declareRuntimeImports(RuntimeImport... functionNames) {
+    public void declareRuntimeImport(RuntimeImport... functionNames) {
         this.importedRuntimeFunctions.addAll(Arrays.asList(functionNames));
     }
 
@@ -250,7 +243,7 @@ public class MPyModule {
     }
 
     private BlockContent initStringWasmFn() {
-        declareRuntimeImports(MPY_STR_ALLOC, MPY_STR_SET, MPY_STR_INTO_CSTR);
+        declareRuntimeImport(MPY_STR_ALLOC, MPY_STR_SET, MPY_STR_INTO_CSTR);
 
         return new Block("",
             new Line("(func $init_string (param $stringLocation i32) (param $stringLength i32) (result i32)"),

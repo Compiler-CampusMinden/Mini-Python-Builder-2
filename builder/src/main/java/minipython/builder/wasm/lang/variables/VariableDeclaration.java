@@ -87,7 +87,7 @@ public class VariableDeclaration implements Expression {
     }
 
     public BlockContent buildInitialisation(MPyModule partOf) {
-        partOf.declareRuntimeImports(MPY_OBJ_INIT_OBJECT, MPY_OBJ_REF_INC);
+        partOf.declareRuntimeImport(MPY_OBJ_INIT_OBJECT, MPY_OBJ_REF_INC);
 
         return new Block(
             "",

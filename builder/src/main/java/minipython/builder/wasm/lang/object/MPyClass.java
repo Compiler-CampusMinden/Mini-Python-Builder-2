@@ -77,7 +77,7 @@ public class MPyClass implements Expression {
     }
 
     public BlockContent buildInitialisation(MPyModule partOf) {
-        partOf.declareRuntimeImports(MPY_OBJ_SET_ATTR, MPY_OBJ_INIT_TYPE, MPY_OBJ_REF_INC);
+        partOf.declareRuntimeImport(MPY_OBJ_SET_ATTR, MPY_OBJ_INIT_TYPE, MPY_OBJ_REF_INC);
 
         List<BlockContent> attributes = classAttributes.entrySet().stream().map(attribute ->
             new Block(

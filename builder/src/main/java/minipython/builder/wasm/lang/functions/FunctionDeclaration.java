@@ -93,7 +93,7 @@ public class FunctionDeclaration implements Expression {
     }
 
     public BlockContent buildRawFuncDeclaration(MPyModule partOf) {
-        partOf.declareRuntimeImports(MPY_OBJ_INIT_OBJECT, MPY_OBJ_RETURN);
+        partOf.declareRuntimeImport(MPY_OBJ_INIT_OBJECT, MPY_OBJ_RETURN);
         return new Block(
             "",
             // required so that the init code can take a reference to the function
@@ -146,7 +146,7 @@ public class FunctionDeclaration implements Expression {
     }
 
     private BlockContent buildArgumentExtraction(MPyModule partOf) {
-        partOf.declareRuntimeImports(MPY_ARGS_INIT_MALLOCED, MPY_ARGS_GET_POSITIONAL, MPY_ARGS_MALLOCED);
+        partOf.declareRuntimeImport(MPY_ARGS_INIT_MALLOCED, MPY_ARGS_GET_POSITIONAL, MPY_ARGS_MALLOCED);
 
         List<BlockContent> argExtraction = new LinkedList<>();
 
@@ -187,7 +187,7 @@ public class FunctionDeclaration implements Expression {
     }
 
     public BlockContent buildInitialisation(MPyModule partOf) {
-        partOf.declareRuntimeImports(MPY_OBJ_INIT_FUNC, MPY_OBJ_REF_INC);
+        partOf.declareRuntimeImport(MPY_OBJ_INIT_FUNC, MPY_OBJ_REF_INC);
 
         // if the function is global,
         // save it in the respective global variable.

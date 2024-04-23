@@ -15,7 +15,7 @@ public record ReturnStatement(
 
 	@Override
 	public BlockContent buildStatement(MPyModule partOf) {
-        partOf.declareRuntimeImports(MPY_OBJ_RETURN);
+        partOf.declareRuntimeImport(MPY_OBJ_RETURN);
         return new Block(
             "start of return",
             "end of return",

@@ -29,7 +29,7 @@ public record TupleLiteral(
 
 	@Override
 	public BlockContent buildExpression(MPyModule partOf) {
-        partOf.declareRuntimeImports(MPY_TUPLE_ASSIGN, MPY_OBJ_INIT_TUPLE);
+        partOf.declareRuntimeImport(MPY_TUPLE_ASSIGN, MPY_OBJ_INIT_TUPLE);
 
         // the process of creating a tuple 'visualized'
         //     [BOT, elem1, elem2] i32.const 0 -> [BOT, elem1, elem2, 0]
