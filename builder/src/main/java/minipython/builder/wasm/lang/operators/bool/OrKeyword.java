@@ -15,7 +15,7 @@ import minipython.builder.wasm.lang.MPyModule;
 import minipython.builder.wasm.lang.literal.BoolLiteral;
 import minipython.builder.wasm.lang.object.AttributeReference;
 
-public record AndKeyword(
+public record OrKeyword(
     Expression left,
     Expression right
 ) implements Expression {
@@ -25,9 +25,9 @@ public record AndKeyword(
         partOf.declareRuntimeImport(MPY_BOOLEAN_RAW);
         // idea:
         // 1. left side to raw boolean
-        // 2. if false: short circuit to false
+        // 2. if true: short circuit to true
         // 3. else: evaluate right side
-        //  (left side is already true, so either (true && false = false) -> false = flase or (true && true = true) -> true = true)
+        //  (left side is already false, so either (false || false = false) -> false = flase or (false || true = true) -> true = true)
         //4. jump to end of block
         return new Block(
             "start of boolean and",
@@ -41,13 +41,12 @@ public record AndKeyword(
                     new Block("  ",
                         new Call(new AttributeReference(left, partOf.BUILTIN_STRINGS.ATTR_FUNC_BOOL), List.of()).buildExpression(partOf),
                         new Line("call $__mpy_boolean_raw"),
-                        new Line("i32.eqz"),
                         new Line("br_if $shortcircuit"),
                         new Call(new AttributeReference(right, partOf.BUILTIN_STRINGS.ATTR_FUNC_BOOL), List.of()).buildExpression(partOf),
                         new Line("br $skipShortcircuit")
                     ),
                     new Line(")"),
-                    new BoolLiteral(false).buildExpression(partOf)
+                    new BoolLiteral(true).buildExpression(partOf)
                 ),
                 new Line(")")
             )

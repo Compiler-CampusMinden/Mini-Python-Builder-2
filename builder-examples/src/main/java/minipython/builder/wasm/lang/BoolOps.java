@@ -11,6 +11,7 @@ import minipython.builder.wasm.lang.literal.BoolLiteral;
 import minipython.builder.wasm.lang.literal.StringLiteral;
 import minipython.builder.wasm.lang.operators.bool.AndKeyword;
 import minipython.builder.wasm.lang.operators.bool.NotKeyword;
+import minipython.builder.wasm.lang.operators.bool.OrKeyword;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 import minipython.builder.wasm.lang.variables.VariableAssignment;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
@@ -53,12 +54,14 @@ public class BoolOps {
 
         List<Statement> printABody = new LinkedList<>();
         FunctionDeclaration printA = mod.newFunction(mod.newString("printA"), printABody);
+
         printABody.add(new Call(
             Builtins.FUNCTION_PRINT,
             List.of(new Expression[] {
                 new NotKeyword(varA)
             })
         ));
+
         printABody.add(new Call(
             Builtins.FUNCTION_PRINT,
             List.of(new Expression[] {
@@ -72,7 +75,18 @@ public class BoolOps {
             })
         ));
 
-
+        printABody.add(new Call(
+            Builtins.FUNCTION_PRINT,
+            List.of(new Expression[] {
+                new OrKeyword(new BoolLiteral(true), new Call(truthFn, List.of()))
+            })
+        ));
+        printABody.add(new Call(
+            Builtins.FUNCTION_PRINT,
+            List.of(new Expression[] {
+                new OrKeyword(new BoolLiteral(false), new Call(truthFn, List.of()))
+            })
+        ));
 
         module.add(new VariableAssignment(varA, new BoolLiteral(true)));
         module.add(new Call(
