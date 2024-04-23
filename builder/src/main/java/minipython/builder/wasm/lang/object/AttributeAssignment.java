@@ -7,7 +7,7 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
+import minipython.builder.wasm.lang.MPyModule;
 import minipython.builder.wasm.lang.Statement;
 
 public record AttributeAssignment(
@@ -16,7 +16,7 @@ public record AttributeAssignment(
 ) implements Statement {
 
     @Override
-    public BlockContent buildStatement(Module partOf) {
+    public BlockContent buildStatement(MPyModule partOf) {
         return new Block(
             "start of assignment to '%s'".formatted(attribute.name()),
             "start of assignment to '%s'".formatted(attribute.name()),

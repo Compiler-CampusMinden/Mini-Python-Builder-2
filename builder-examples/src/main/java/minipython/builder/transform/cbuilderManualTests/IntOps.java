@@ -1,6 +1,6 @@
 package minipython.builder.transform.cbuilderManualTests;
 
-import minipython.builder.lang.Module;
+import minipython.builder.lang.MPyModule;
 import minipython.builder.cbuilder.Transform;
 import minipython.builder.lang.Call;
 import minipython.builder.lang.Statement;
@@ -37,7 +37,7 @@ public class IntOps {
     static void generateProgram(Path output) {
         List<Statement> body = new LinkedList<>();
         Set<VariableDeclaration> globalVars = new HashSet<>();
-        Module builder = new Module(body, globalVars);
+        MPyModule builder = new MPyModule(body, globalVars);
 
         VariableDeclaration varA = new VariableDeclaration("a");
         globalVars.add(varA);

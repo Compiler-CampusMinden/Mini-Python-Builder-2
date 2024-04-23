@@ -7,7 +7,7 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
+import minipython.builder.wasm.lang.MPyModule;
 
 /**
  * A MiniPython int object.
@@ -19,7 +19,7 @@ public record BoolLiteral(
 ) implements Expression {
 
     @Override
-    public BlockContent buildExpression(Module partOf) {
+    public BlockContent buildExpression(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_INIT_BOOLEAN);
 
         return new Block(
@@ -35,7 +35,7 @@ public record BoolLiteral(
     }
 
     @Override
-    public BlockContent buildStatement(Module partOf) {
+    public BlockContent buildStatement(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_REF_DEC);
         return new Block(
             "",

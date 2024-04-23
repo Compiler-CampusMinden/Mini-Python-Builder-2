@@ -8,7 +8,7 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
+import minipython.builder.wasm.lang.MPyModule;
 import minipython.builder.wasm.lang.literal.StringLiteral;
 
 public record AttributeReference(
@@ -21,7 +21,7 @@ public record AttributeReference(
     }
 
     @Override
-    public BlockContent buildExpression(Module partOf) {
+    public BlockContent buildExpression(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_GET_ATTR);
         return new Block(
             "start of attribute reference to '%s'".formatted(attributeName.value()),
@@ -47,7 +47,7 @@ public record AttributeReference(
     }
 
     @Override
-    public BlockContent buildStatement(Module partOf) {
+    public BlockContent buildStatement(MPyModule partOf) {
         return new Block("",
             buildExpression(partOf),
             new Line("drop")

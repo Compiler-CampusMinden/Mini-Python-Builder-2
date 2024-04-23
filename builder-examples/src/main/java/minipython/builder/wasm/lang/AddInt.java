@@ -25,7 +25,7 @@ public class AddInt {
 
     public static void main(String[] args) throws Exception {
         List<Statement> module = new ArrayList<>();
-        Module mod = new Module(module);
+        MPyModule mod = new MPyModule(module);
         VariableDeclaration varA = mod.newVariable(mod.newString("a"));
         StringLiteral add = mod.newString("__add__");
 

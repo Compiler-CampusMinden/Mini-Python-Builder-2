@@ -362,10 +362,10 @@ public class Transform {
         }
     }
 
-    private class ModuleTransform implements Transformation<minipython.builder.lang.Module, ProgramBuilder, Transform> {
+    private class ModuleTransform implements Transformation<minipython.builder.lang.MPyModule, ProgramBuilder, Transform> {
 
         @Override
-        public ProgramBuilder apply(minipython.builder.lang.Module from, Transform context,
+        public ProgramBuilder apply(minipython.builder.lang.MPyModule from, Transform context,
                 TransformationManager manager) {
             ProgramBuilder builder = new ProgramBuilder();
 
@@ -418,14 +418,14 @@ public class Transform {
      *
      * The current transformation architecture does not support incremental transformation.
      */
-    public static ProgramBuilder transform(minipython.builder.lang.Module module) {
+    public static ProgramBuilder transform(minipython.builder.lang.MPyModule module) {
         return new Transform().transform_(module);
     }
 
     // this cannot be part of the static method,
     // since the inner classes can only be instantiated
     // if they have an eclosing instance of Transform
-    public ProgramBuilder transform_(minipython.builder.lang.Module module) {
+    public ProgramBuilder transform_(minipython.builder.lang.MPyModule module) {
         TransformationManager manager = new TransformationManager();
 
         manager.registerTransformation(new ClassMPyObjectTransform(), minipython.builder.lang.builtins.ClassMPyObject.class);
@@ -452,7 +452,7 @@ public class Transform {
         manager.registerTransformation(new AssignmentTransform(), minipython.builder.lang.variables.Assignment.class);
         manager.registerTransformation(new VariableDeclarationTransform(), minipython.builder.lang.variables.VariableDeclaration.class);
         manager.registerTransformation(new CallTransform(), minipython.builder.lang.Call.class);
-        manager.registerTransformation(new ModuleTransform(), minipython.builder.lang.Module.class);
+        manager.registerTransformation(new ModuleTransform(), minipython.builder.lang.MPyModule.class);
 
         return manager.transform(module, this, ProgramBuilder.class);
     }

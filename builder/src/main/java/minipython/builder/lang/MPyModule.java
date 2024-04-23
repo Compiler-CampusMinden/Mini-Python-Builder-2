@@ -10,22 +10,22 @@ import minipython.builder.lang.variables.VariableDeclaration;
 /**
  * The top-level element of a MiniPython program.
  */
-public record Module(
+public record MPyModule(
     List<Statement> body,
     Set<VariableDeclaration> globalVariabes,
     Set<MPyClass> classes,
     Set<FunctionDeclaration> functions
 ) {
 
-    public Module(List<Statement> body) {
+    public MPyModule(List<Statement> body) {
         this(body, Set.of());
     }
 
-    public Module(List<Statement> body, Set<VariableDeclaration> globalVariables) {
+    public MPyModule(List<Statement> body, Set<VariableDeclaration> globalVariables) {
         this(body, globalVariables, Set.of());
     }
 
-    public Module(List<Statement> body, Set<VariableDeclaration> globalVariables, Set<MPyClass> classes) {
+    public MPyModule(List<Statement> body, Set<VariableDeclaration> globalVariables, Set<MPyClass> classes) {
         this(body, globalVariables, classes, Set.of());
     }
 }

@@ -1,6 +1,6 @@
 package minipython.builder.transform.cbuilderManualTests;
 
-import minipython.builder.lang.Module;
+import minipython.builder.lang.MPyModule;
 import minipython.builder.cbuilder.Transform;
 import minipython.builder.lang.Call;
 import minipython.builder.lang.Statement;
@@ -52,7 +52,7 @@ public class ClassTest {
         Set<VariableDeclaration> globalVars = new HashSet<>();
         Set<MPyClass> classes = new HashSet<>();
         Set<FunctionDeclaration> funcs = new HashSet<>();
-        Module builder = new Module(body, globalVars, classes, funcs);
+        MPyModule builder = new MPyModule(body, globalVars, classes, funcs);
 
         VariableDeclaration varB = new VariableDeclaration("b");
         globalVars.add(varB);

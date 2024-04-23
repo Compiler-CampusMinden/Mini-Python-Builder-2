@@ -12,7 +12,7 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
+import minipython.builder.wasm.lang.MPyModule;
 
 /**
  * A MiniPython Tuple object.
@@ -28,7 +28,7 @@ public record TupleLiteral(
     }
 
 	@Override
-	public BlockContent buildExpression(Module partOf) {
+	public BlockContent buildExpression(MPyModule partOf) {
         partOf.declareRuntimeImports(MPY_TUPLE_ASSIGN, MPY_OBJ_INIT_TUPLE);
 
         // the process of creating a tuple 'visualized'
@@ -92,7 +92,7 @@ public record TupleLiteral(
 	}
 
 	@Override
-	public BlockContent buildStatement(Module partOf) {
+	public BlockContent buildStatement(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_REF_DEC);
         return new Block(
             "",

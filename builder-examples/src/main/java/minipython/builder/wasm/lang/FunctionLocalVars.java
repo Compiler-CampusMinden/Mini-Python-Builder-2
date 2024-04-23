@@ -27,7 +27,7 @@ public class FunctionLocalVars {
 
     public static void main(String[] args) throws Exception {
         List<Statement> module = new ArrayList<>();
-        Module mod = new Module(module);
+        MPyModule mod = new MPyModule(module);
 
         List<Statement> printABody = new LinkedList<>();
         FunctionDeclaration printA = mod.newFunction(mod.newString("printA"), printABody);

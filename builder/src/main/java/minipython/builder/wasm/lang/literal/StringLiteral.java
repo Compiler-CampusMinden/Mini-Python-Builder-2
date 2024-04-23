@@ -7,15 +7,15 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
-import minipython.builder.wasm.lang.Module.StringToken;
+import minipython.builder.wasm.lang.MPyModule;
+import minipython.builder.wasm.lang.MPyModule.StringToken;
 
 /**
  * A string literal.
  *
  * String creation happens via \a Module#newString.
  *
- * @see Module#newString
+ * @see MPyModule#newString
  */
 public record StringLiteral(
     String value,
@@ -23,7 +23,7 @@ public record StringLiteral(
 ) implements Expression {
 
 	@Override
-	public BlockContent buildExpression(Module partOf) {
+	public BlockContent buildExpression(MPyModule partOf) {
         if (partOf != token.owner) {
             throw new IllegalArgumentException("mismatch between owning module and calling module");
         }
@@ -44,12 +44,12 @@ public record StringLiteral(
         );
 	}
 
-    public BlockContent buildExpressionCString(Module partOf) {
+    public BlockContent buildExpressionCString(MPyModule partOf) {
         return new Line("global.get $%s".formatted(token.identifier));
     }
 
 	@Override
-	public BlockContent buildStatement(Module partOf) {
+	public BlockContent buildStatement(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_REF_DEC);
         return new Block(
             "",

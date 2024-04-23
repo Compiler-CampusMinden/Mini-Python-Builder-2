@@ -13,6 +13,6 @@ public interface Statement {
      *
      * @return WASM code that does not add values to the stack.
      */
-    public BlockContent buildStatement(Module partOf);
+    public BlockContent buildStatement(MPyModule partOf);
 
 }

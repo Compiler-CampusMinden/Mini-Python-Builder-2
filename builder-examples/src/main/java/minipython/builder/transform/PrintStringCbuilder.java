@@ -8,7 +8,7 @@ import minipython.builder.lang.literal.StringLiteral;
 import minipython.builder.cbuilder.Transform;
 import minipython.builder.lang.Call;
 import minipython.builder.lang.Expression;
-import minipython.builder.lang.Module;
+import minipython.builder.lang.MPyModule;
 import minipython.builder.lang.Statement;
 
 /**
@@ -25,7 +25,7 @@ public class PrintStringCbuilder {
 
     public static void main(String[] args) throws Exception {
         List<Statement> module = new ArrayList<>();
-        Module mod = new Module(module);
+        MPyModule mod = new MPyModule(module);
 
         module.add(new Call(
             Builtins.FUNCTION_PRINT,

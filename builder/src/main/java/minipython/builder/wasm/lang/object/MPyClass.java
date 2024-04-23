@@ -15,9 +15,9 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
+import minipython.builder.wasm.lang.MPyModule;
 import minipython.builder.wasm.lang.Statement;
-import minipython.builder.wasm.lang.Module.ClassToken;
+import minipython.builder.wasm.lang.MPyModule.ClassToken;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
 import minipython.builder.wasm.lang.literal.StringLiteral;
 
@@ -53,11 +53,11 @@ public class MPyClass implements Expression {
     }
 
     @Override
-    public BlockContent buildExpression(Module partOf) {
+    public BlockContent buildExpression(MPyModule partOf) {
         return new Line("global.get $%s".formatted(name.value()));
     }
 
-    public BlockContent buildRawTypeDeclaration(Module partOf) {
+    public BlockContent buildRawTypeDeclaration(MPyModule partOf) {
         return new Block(
             "start of class '%s'".formatted(name.value()),
             "end of class '%s'".formatted(name.value()),
@@ -69,14 +69,14 @@ public class MPyClass implements Expression {
         );
     }
 
-    public BlockContent buildTypeObjDeclaration(Module partOf) {
+    public BlockContent buildTypeObjDeclaration(MPyModule partOf) {
         return new Block(
             "",
             new Line("(global $%s (mut i32) (i32.const 0))".formatted(name.value()))
         );
     }
 
-    public BlockContent buildInitialisation(Module partOf) {
+    public BlockContent buildInitialisation(MPyModule partOf) {
         partOf.declareRuntimeImports(MPY_OBJ_SET_ATTR, MPY_OBJ_INIT_TYPE, MPY_OBJ_REF_INC);
 
         List<BlockContent> attributes = classAttributes.entrySet().stream().map(attribute ->
@@ -132,7 +132,7 @@ public class MPyClass implements Expression {
     }
 
     @Override
-    public BlockContent buildStatement(Module partOf) {
+    public BlockContent buildStatement(MPyModule partOf) {
         // referencing a class delcaration as a statement
         // is simply a no-op
         return new Line("", "class '%s'".formatted(name.value()));

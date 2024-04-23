@@ -1,6 +1,6 @@
 package minipython.builder.transform.cbuilderManualTests;
 
-import minipython.builder.lang.Module;
+import minipython.builder.lang.MPyModule;
 import minipython.builder.cbuilder.Transform;
 import minipython.builder.lang.Call;
 import minipython.builder.lang.Expression;
@@ -53,7 +53,7 @@ public class BooleanTest {
     static void generateProgram(Path output) {
         List<Statement> body = new LinkedList<>();
         Set<VariableDeclaration> globalVars = new HashSet<>();
-        Module builder = new Module(body, globalVars);
+        MPyModule builder = new MPyModule(body, globalVars);
 
         VariableDeclaration a = new VariableDeclaration("a");
         globalVars.add(a);

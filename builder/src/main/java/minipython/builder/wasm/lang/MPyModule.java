@@ -25,7 +25,7 @@ import minipython.builder.wasm.lang.variables.VariableDeclaration;
 /**
  * The top-level element of a MiniPython program.
  */
-public class Module {
+public class MPyModule {
     private final List<Statement> body;
     private Set<RuntimeImport> importedRuntimeFunctions = new HashSet<>();
     private List<StringLiteral> strings = new LinkedList<>();
@@ -46,36 +46,36 @@ public class Module {
         /**
          * Tracks which module created this instance.
          */
-        public final Module owner;
+        public final MPyModule owner;
 
-        private StringToken(String identifier, Module owner) {
+        private StringToken(String identifier, MPyModule owner) {
             this.identifier = identifier;
             this.owner = owner;
         }
     }
 
     public class VariableToken {
-        public final Module owner;
+        public final MPyModule owner;
 
-        private VariableToken(Module owner) {
+        private VariableToken(MPyModule owner) {
             this.owner = owner;
         }
 
     }
 
     public class FunctionToken {
-        public final Module owner;
+        public final MPyModule owner;
 
-        private FunctionToken(Module owner) {
+        private FunctionToken(MPyModule owner) {
             this.owner = owner;
         }
 
     }
 
     public class ClassToken {
-        public final Module owner;
+        public final MPyModule owner;
 
-        private ClassToken(Module owner) {
+        private ClassToken(MPyModule owner) {
             this.owner = owner;
         }
     }
@@ -114,7 +114,7 @@ public class Module {
     /**
      * @param body statements in the global scope of the MiniPython program
      */
-    public Module(List<Statement> body) {
+    public MPyModule(List<Statement> body) {
         this.body = body;
     }
 

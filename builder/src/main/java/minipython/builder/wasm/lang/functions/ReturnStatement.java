@@ -6,7 +6,7 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
+import minipython.builder.wasm.lang.MPyModule;
 import minipython.builder.wasm.lang.Statement;
 
 public record ReturnStatement(
@@ -14,7 +14,7 @@ public record ReturnStatement(
 ) implements Statement {
 
 	@Override
-	public BlockContent buildStatement(Module partOf) {
+	public BlockContent buildStatement(MPyModule partOf) {
         partOf.declareRuntimeImports(MPY_OBJ_RETURN);
         return new Block(
             "start of return",

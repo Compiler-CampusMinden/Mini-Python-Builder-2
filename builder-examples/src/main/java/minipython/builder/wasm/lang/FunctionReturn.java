@@ -31,7 +31,7 @@ public class FunctionReturn {
 
     public static void main(String[] args) throws Exception {
         List<Statement> module = new ArrayList<>();
-        Module mod = new Module(module);
+        MPyModule mod = new MPyModule(module);
         StringLiteral a = mod.newString("a");
         VariableDeclaration varA = mod.newVariable(a);
 
