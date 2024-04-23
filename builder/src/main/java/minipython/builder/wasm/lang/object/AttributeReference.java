@@ -16,6 +16,10 @@ public record AttributeReference(
     StringLiteral attributeName
 ) implements Expression {
 
+    public String name() {
+        return attributeName.value();
+    }
+
     @Override
     public BlockContent buildExpression(Module partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_GET_ATTR);
