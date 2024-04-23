@@ -133,6 +133,8 @@ public class MPyClass implements Expression {
 
     @Override
     public BlockContent buildStatement(Module partOf) {
-        throw new UnsupportedOperationException("Unimplemented method 'buildStatement'");
+        // referencing a class delcaration as a statement
+        // is simply a no-op
+        return new Line("", "class '%s'".formatted(name.value()));
     }
 }

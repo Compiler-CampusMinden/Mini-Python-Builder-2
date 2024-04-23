@@ -17,12 +17,40 @@ public record VariableAssignment(
 
     @Override
     public BlockContent buildStatement(Module partOf) {
-        return new Block(
-            "start of assignment to %s '%s'".formatted(target.kind(), target.name()),
-            "end of assignment to %s '%s'".formatted(target.kind(), target.name()),
-            "",
-            value.buildExpression(partOf),
-            new Line("%s.set $%s".formatted(target.kind(), target.name()))
-        );
+        // for variable assignments,
+        // the order matters:
+        // a=a
+        // leads to a being garbage collected
+        // if first the left side (target) is decremented,
+        // and afterwards the right side (value) is incremented
+        // (which does make more sense in the general case,
+        // since otherwise value would need to be evaluated twice).
+        // Therefore special case somevar=somevar style assignments:
+        if (this.value instanceof VariableDeclaration) {
+            VariableDeclaration val = (VariableDeclaration) this.value;
+            return new Block(
+                "start of assignment to %s '%s'".formatted(target.kind(), target.name()),
+                "end of assignment to %s '%s'".formatted(target.kind(), target.name()),
+                "",
+                new Line("%s.get $%s".formatted(val.kind(), val.name())),
+                new Line("call $__mpy_obj_ref_inc"),
+                new Line("%s.get $%s".formatted(target.kind(), target.name())),
+                new Line("call $__mpy_obj_ref_dec"),
+                value.buildExpression(partOf),
+                new Line("%s.set $%s".formatted(target.kind(), target.name()))
+            );
+        } else {
+            return new Block(
+                "start of assignment to %s '%s'".formatted(target.kind(), target.name()),
+                "end of assignment to %s '%s'".formatted(target.kind(), target.name()),
+                "",
+                new Line("%s.get $%s".formatted(target.kind(), target.name())),
+                new Line("call $__mpy_obj_ref_dec"),
+                value.buildExpression(partOf),
+                new Line("%s.set $%s".formatted(target.kind(), target.name())),
+                new Line("%s.get $%s".formatted(target.kind(), target.name())),
+                new Line("call $__mpy_obj_ref_dec")
+            );
+        }
     }
 }
