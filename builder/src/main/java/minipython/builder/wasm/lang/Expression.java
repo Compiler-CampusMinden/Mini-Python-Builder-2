@@ -13,6 +13,6 @@ public interface Expression extends Statement {
      *
      * @return WASM code that leaves a pointer to a MiniPython object on the stack.
      */
-    public BlockContent buildExpression(Module partOf);
+    public BlockContent buildExpression(MPyModule partOf);
 
 }

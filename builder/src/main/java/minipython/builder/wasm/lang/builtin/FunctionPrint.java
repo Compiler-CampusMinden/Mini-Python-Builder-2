@@ -7,7 +7,7 @@ import minipython.builder.BlockContent;
 import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
-import minipython.builder.wasm.lang.Module;
+import minipython.builder.wasm.lang.MPyModule;
 
 /**
  * The built-in print function, as a MiniPython function object.
@@ -15,19 +15,16 @@ import minipython.builder.wasm.lang.Module;
 public class FunctionPrint implements Expression {
 
 	@Override
-	public BlockContent buildExpression(Module partOf) {
+	public BlockContent buildExpression(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_BUILTINS_GET_FN_PRINT);
         return new Line("call $__mpy_builtins_get_fn_print");
 	}
 
 	@Override
-	public BlockContent buildStatement(Module partOf) {
-        partOf.declareRuntimeImport(MPY_OBJ_REF_DEC);
-        return new Block(
-            "",
-            buildExpression(partOf),
-            new Line("call $__mpy_obj_ref_dec")
-        );
+	public BlockContent buildStatement(MPyModule partOf) {
+        // referencing a builtin as a statement
+        // is simply a no-op
+        return new Line("", "builtin print()");
 	}
 
 }

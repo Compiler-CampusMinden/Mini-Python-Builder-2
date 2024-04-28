@@ -23,7 +23,7 @@ public record Call(
 ) implements Expression {
 
 	@Override
-	public BlockContent buildExpression(Module partOf) {
+	public BlockContent buildExpression(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_CALL);
 
         TupleLiteral positionalArgsParam = new TupleLiteral(positionalArgs);
@@ -53,7 +53,7 @@ public record Call(
 	}
 
 	@Override
-	public BlockContent buildStatement(Module partOf) {
+	public BlockContent buildStatement(MPyModule partOf) {
         partOf.declareRuntimeImport(MPY_OBJ_REF_DEC);
         return new Block(
             "",

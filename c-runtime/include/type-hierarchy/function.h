@@ -4,7 +4,7 @@
 #include "mpy_obj.h"
 #include "callable.h"
 
-__MPyObj* __mpy_obj_init_func(__mpy_func_call function);
+MPY_API __MPyObj* __mpy_obj_init_func(__mpy_func_call function);
 
 #endif
 

@@ -12,4 +12,8 @@ public record Call(
     Expression callable,
     List<Expression> positionalArgs
 ) implements Expression {
+
+    public Call(Expression callable, Expression... positionalArgs) {
+        this(callable, List.of(positionalArgs));
+    }
 }

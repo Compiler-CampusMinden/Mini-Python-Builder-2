@@ -34,7 +34,7 @@ __MPyObj* __mpy_object_func_str_impl(__MPyObj *args, __MPyObj *kwargs) {
     const char *stringObject = " object ";
     const char *stringEnd = ">";
 
-    size_t strLen = strlen(stringStart) + strlen(typeName) + strlen(stringObject) + strlen(stringEnd) + digits;
+    size_t strLen = strlen(stringStart) + strlen(typeName) + strlen(stringObject) + strlen(stringEnd) + digits + 1;
     char *string = __mpy_checked_malloc(sizeof(char) * strLen);
     snprintf(string, strLen, "%s%s%s%u%s", stringStart, typeName, stringObject, self->id, stringEnd);
 

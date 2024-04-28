@@ -82,6 +82,14 @@ CFLAGS_WASM += -DMPY_WASM
 LDFLAGS_WASM += -mexec-model=reactor
 # ensure that the WASM module really has no entry function and is treated as a library
 LDFLAGS_WASM += -Wl,--no-entry
+# wasm currently has no function pointers
+# (in the sense that functions can be referenced
+# as a value just as i32/u32 etc, nor as memory pointers (e.g. strings))
+# export the function table used by clang
+# so that minipython modules can import it
+# and add their functions
+# (table is named __indirect_function_table)
+LDFLAGS_WASM += -Wl,--export-table -Wl,--growable-table
 
 ###########
 # Targets #

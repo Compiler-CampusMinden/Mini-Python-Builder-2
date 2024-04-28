@@ -16,7 +16,7 @@ public class MPyClass extends Reference {
     /**
      * The reference to the parent class.
      */
-    private final Reference parent;
+    private final Expression parent;
 
     /**
      * The list of methods the class contains.
@@ -36,7 +36,7 @@ public class MPyClass extends Reference {
      * @param functions The associated functions and methods.
      * @param classAttributes The classes attributes.
      */
-    public MPyClass(String name, Reference parent, List<Function> functions, Map<Reference, Expression> classAttributes) {
+    public MPyClass(String name, Expression parent, List<Function> functions, Map<Reference, Expression> classAttributes) {
         super(name);
         this.parent = parent;
         this.functions = functions;
