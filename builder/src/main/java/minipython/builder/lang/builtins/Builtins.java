@@ -6,5 +6,6 @@ package minipython.builder.lang.builtins;
 public class Builtins {
 
     public final static FunctionPrint FUNCTION_PRINT = new FunctionPrint();
+    public final static FunctionSuper FUNCTION_SUPER = new FunctionSuper();
     public final static ClassMPyObject CLASS_MPY_OBJECT = new ClassMPyObject();
 }

@@ -19,4 +19,8 @@ public record FunctionDeclaration(
     public FunctionDeclaration(String name, List<VariableDeclaration> arguments, Set<VariableDeclaration> localVariables, List<Statement> body) {
         this(name, arguments, localVariables, body, Scope.SCOPE_GLOBAL);
     }
+
+    public FunctionDeclaration(String name, List<Statement> body) {
+        this(name, List.of(), Set.of(), body);
+    }
 }
