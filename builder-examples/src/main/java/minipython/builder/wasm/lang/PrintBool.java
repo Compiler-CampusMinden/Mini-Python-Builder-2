@@ -1,12 +1,12 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
 import minipython.builder.wasm.lang.literal.BoolLiteral;
+import minipython.builder.wasm.lang.literal.StringLiteral;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 import minipython.builder.wasm.lang.variables.VariableAssignment;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
@@ -28,25 +28,42 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class PrintBool {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
-        VariableDeclaration varA = mod.newVariable(mod.newString("a"));
+        StringLiteral sA = new StringLiteral("a");
+        StringLiteral sPrintA = new StringLiteral("printA");
 
-        List<Statement> printABody = new LinkedList<>();
-        FunctionDeclaration printA = mod.newFunction(mod.newString("printA"), printABody);
-        printABody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                varA
-            })
-        ));
+        VariableDeclaration varA = new VariableDeclaration(sA);
 
+        FunctionDeclaration fnPrintA = new FunctionDeclaration(
+            sPrintA,
+            List.of(
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        varA
+                    )
+                )
+            )
+        );
 
-        module.add(new VariableAssignment(varA, new BoolLiteral(true)));
-        module.add(new Call(
-            printA,
-            List.of()
-        ));
+        MPyModule mod = new MPyModule(
+            List.of(
+                new VariableAssignment(
+                    varA,
+                    new BoolLiteral(true)
+                ),
+                new Call(
+                    fnPrintA,
+                    List.of()
+                )
+            ),
+            Set.of(varA),
+            Set.of(),
+            Set.of(fnPrintA),
+            Set.of(
+                sA,
+                sPrintA
+            )
+        );
 
         new WasmtimeCliRunner().run(mod.build());
     }

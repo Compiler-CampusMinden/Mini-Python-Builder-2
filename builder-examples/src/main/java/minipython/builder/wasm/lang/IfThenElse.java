@@ -1,17 +1,16 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
 import minipython.builder.wasm.lang.literal.IntLiteral;
+import minipython.builder.wasm.lang.literal.StringLiteral;
 import minipython.builder.wasm.lang.object.AttributeReference;
 import minipython.builder.wasm.lang.operators.control_flow.IfThenElseStatement;
 import minipython.builder.wasm.lang.operators.control_flow.IfThenElseStatement.ConditionalBlock;
-import minipython.builder.wasm.lang.variables.VariableAssignment;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
@@ -35,72 +34,102 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class IfThenElse {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
+        StringLiteral sDo = new StringLiteral("do");
+        StringLiteral sA = new StringLiteral("a");
+        StringLiteral sLt = new StringLiteral("__lt__");
+        StringLiteral sTooSmall = new StringLiteral("too small");
+        StringLiteral sEq = new StringLiteral("__eq__");
+        StringLiteral sSpecialValue = new StringLiteral("special value");
+        StringLiteral sGt = new StringLiteral("__gt__");
+        StringLiteral sTooBig = new StringLiteral("too big");
+        StringLiteral sCorrect = new StringLiteral("correct :)");
 
-        List<Statement> doBody = new LinkedList<>();
-
-        FunctionDeclaration doFn = mod.newFunction(mod.newString("do"), doBody);
-        VariableDeclaration varA = doFn.addArgument(mod.newString("a"));
-        doBody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(varA)
-        ));
-        doBody.add(new IfThenElseStatement(
-            new ConditionalBlock(
+        VariableDeclaration varA_Do = new VariableDeclaration(sA, Scope.SCOPE_LOCAL);
+        FunctionDeclaration fnDo = new FunctionDeclaration(
+            sDo,
+            List.of(varA_Do),
+            Set.of(),
+            List.of(
                 new Call(
-                    new AttributeReference(varA, mod.newString("__lt__")),
-                    List.of(new IntLiteral(42))
-                ),
-                List.of(new Call(
                     Builtins.FUNCTION_PRINT,
-                    List.of(mod.newString("too small"))
-                ))
-            ),
-            Optional.of(List.of(
-                new ConditionalBlock(
-                    new Call(
-                        new AttributeReference(varA, mod.newString("__eq__")),
-                        List.of(new IntLiteral(1337))
-                    ),
-                    List.of(new Call(
-                        Builtins.FUNCTION_PRINT,
-                        List.of(mod.newString("special value"))
-                    ))
+                    List.of(varA_Do)
                 ),
-                new ConditionalBlock(
-                    new Call(
-                        new AttributeReference(varA, mod.newString("__gt__")),
-                        List.of(new IntLiteral(42))
+                new IfThenElseStatement(
+                    new ConditionalBlock(
+                        new Call(
+                            new AttributeReference(varA_Do, sLt),
+                            List.of(new IntLiteral(42))
+                        ),
+                        List.of(new Call(
+                            Builtins.FUNCTION_PRINT,
+                            List.of(sTooSmall)
+                        ))
                     ),
-                    List.of(new Call(
+                    Optional.of(List.of(
+                        new ConditionalBlock(
+                            new Call(
+                                new AttributeReference(varA_Do, sEq),
+                                List.of(new IntLiteral(1337))
+                            ),
+                            List.of(new Call(
+                                Builtins.FUNCTION_PRINT,
+                                List.of(sSpecialValue)
+                            ))
+                        ),
+                        new ConditionalBlock(
+                            new Call(
+                                new AttributeReference(varA_Do, sGt),
+                                List.of(new IntLiteral(42))
+                            ),
+                            List.of(new Call(
+                                Builtins.FUNCTION_PRINT,
+                                List.of(sTooBig)
+                            ))
+                        )
+                    )),
+                    Optional.of(List.of(new Call(
                         Builtins.FUNCTION_PRINT,
-                        List.of(mod.newString("too big"))
-                    ))
+                        List.of(sCorrect)
+                    )))
                 )
-            )),
-            Optional.of(List.of(new Call(
-                Builtins.FUNCTION_PRINT,
-                List.of(mod.newString("correct :)"))
-            )))
-        ));
+            )
+        );
 
-        module.add(new Call(
-            doFn,
-            List.of(new IntLiteral(41))
-        ));
-        module.add(new Call(
-            doFn,
-            List.of(new IntLiteral(43))
-        ));
-        module.add(new Call(
-            doFn,
-            List.of(new IntLiteral(1337))
-        ));
-        module.add(new Call(
-            doFn,
-            List.of(new IntLiteral(42))
-        ));
+        MPyModule mod = new MPyModule(
+            List.of(
+                new Call(
+                    fnDo,
+                    List.of(new IntLiteral(41))
+                ),
+                new Call(
+                    fnDo,
+                    List.of(new IntLiteral(43))
+                ),
+                new Call(
+                    fnDo,
+                    List.of(new IntLiteral(1337))
+                ),
+                new Call(
+                    fnDo,
+                    List.of(new IntLiteral(42))
+                )
+            ),
+            Set.of(),
+            Set.of(),
+            Set.of(fnDo),
+            Set.of(
+                sDo,
+                sA,
+                sLt,
+                sTooSmall,
+                sEq,
+                sSpecialValue,
+                sGt,
+                sTooBig,
+                sCorrect
+            )
+        );
+
         new WasmtimeCliRunner().run(mod.build());
     }
 

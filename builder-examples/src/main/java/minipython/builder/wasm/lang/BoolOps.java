@@ -1,8 +1,7 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
@@ -37,62 +36,90 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class BoolOps {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
-        VariableDeclaration varA = mod.newVariable(mod.newString("a"));
+        StringLiteral sA = new StringLiteral("a");
+        StringLiteral sTruth = new StringLiteral("truth");
+        StringLiteral sTruthCalled = new StringLiteral("truth() called");
+        StringLiteral sPrintA = new StringLiteral("printA");
 
-        StringLiteral truth = mod.newString("truth");
-        List<Statement> truthBody = new LinkedList<>();
-        FunctionDeclaration truthFn = mod.newFunction(truth, truthBody);
-        truthBody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                mod.newString("truth() called")
-            })
-        ));
-        truthBody.add(new ReturnStatement(new BoolLiteral(true)));
+        VariableDeclaration varA = new VariableDeclaration(sA);
 
-        List<Statement> printABody = new LinkedList<>();
-        FunctionDeclaration printA = mod.newFunction(mod.newString("printA"), printABody);
+        FunctionDeclaration fnTruth = new FunctionDeclaration(
+            sTruth,
+            List.of(
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(sTruthCalled)
+                ),
+                new ReturnStatement(new BoolLiteral(true))
+            )
+        );
 
-        printABody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                new NotKeyword(varA)
-            })
-        ));
+        FunctionDeclaration fnPrintA = new FunctionDeclaration(
+            sPrintA,
+            List.of(
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new NotKeyword(varA)
+                    )
+                ),
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new AndKeyword(
+                            new BoolLiteral(false),
+                            new Call(fnTruth, List.of())
+                        )
+                    )
+                ),
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new AndKeyword(
+                            new BoolLiteral(true),
+                            new Call(fnTruth, List.of())
+                        )
+                    )
+                ),
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new OrKeyword(
+                            new BoolLiteral(true),
+                            new Call(fnTruth, List.of())
+                        )
+                    )
+                ),
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new OrKeyword(
+                            new BoolLiteral(false),
+                            new Call(fnTruth, List.of())
+                        )
+                    )
+                )
+            )
+        );
 
-        printABody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                new AndKeyword(new BoolLiteral(false), new Call(truthFn, List.of()))
-            })
-        ));
-        printABody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                new AndKeyword(new BoolLiteral(true), new Call(truthFn, List.of()))
-            })
-        ));
-
-        printABody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                new OrKeyword(new BoolLiteral(true), new Call(truthFn, List.of()))
-            })
-        ));
-        printABody.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                new OrKeyword(new BoolLiteral(false), new Call(truthFn, List.of()))
-            })
-        ));
-
-        module.add(new VariableAssignment(varA, new BoolLiteral(true)));
-        module.add(new Call(
-            printA,
-            List.of()
-        ));
+        MPyModule mod = new MPyModule(
+            List.of(
+                new VariableAssignment(varA, new BoolLiteral(true)),
+                new Call(
+                    fnPrintA,
+                    List.of()
+                )
+            ),
+            Set.of(varA),
+            Set.of(),
+            Set.of(fnPrintA, fnTruth),
+            Set.of(
+                sA,
+                sTruth,
+                sTruthCalled,
+                sPrintA
+            )
+        );
 
         new WasmtimeCliRunner().run(mod.build());
     }

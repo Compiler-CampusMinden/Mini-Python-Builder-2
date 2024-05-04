@@ -8,7 +8,6 @@ import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_INIT_OBJECT;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_REF_INC;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_RETURN;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -20,46 +19,37 @@ import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
 import minipython.builder.wasm.lang.MPyModule;
-import minipython.builder.wasm.lang.MPyModule.FunctionToken;
+import minipython.builder.wasm.lang.Scope;
 import minipython.builder.wasm.lang.literal.StringLiteral;
-import minipython.builder.wasm.lang.object.MPyClass.ClassFunctionToken;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 import minipython.builder.wasm.lang.Statement;
 
 public class FunctionDeclaration implements Expression {
 
-    public class FunctionVariableToken {
-        FunctionDeclaration owner;
-
-        private FunctionVariableToken(FunctionDeclaration owner) {
-            this.owner = owner;
-        }
-    }
-
     private final StringLiteral name;
 
-    private final Object token;
-
-    private final boolean isGlobal;
+    private final Scope scope;
 
     private final List<Statement> body;
 
-    private final List<VariableDeclaration> arguments = new LinkedList<>();
+    private final List<VariableDeclaration> arguments;
 
-    private final Set<VariableDeclaration> localVariables = new HashSet<>();
+    private final Set<VariableDeclaration> localVariables;
 
-    public FunctionDeclaration(FunctionToken token, StringLiteral name, List<Statement> body) {
+    public FunctionDeclaration(StringLiteral name, List<VariableDeclaration> arguments, Set<VariableDeclaration> localVariables, List<Statement> body, Scope scope) {
         this.name = name;
-        this.token = token;
+        this.arguments = arguments;
+        this.localVariables = localVariables;
         this.body = body;
-        this.isGlobal = true;
+        this.scope = scope;
     }
 
-    public FunctionDeclaration(ClassFunctionToken token, StringLiteral name, List<Statement> body) {
-        this.name = name;
-        this.token = token;
-        this.body = body;
-        this.isGlobal = false;
+    public FunctionDeclaration(StringLiteral name, List<Statement> body) {
+        this(name, List.of(), Set.of(), body);
+    }
+
+    public FunctionDeclaration(StringLiteral name, List<VariableDeclaration> arguments, Set<VariableDeclaration> localVariables, List<Statement> body) {
+        this(name, arguments, localVariables, body, Scope.SCOPE_GLOBAL);
     }
 
     public String name() {
@@ -70,25 +60,13 @@ public class FunctionDeclaration implements Expression {
         return name;
     }
 
-    public VariableDeclaration addArgument(StringLiteral name) {
-        VariableDeclaration arg = new VariableDeclaration(name, new FunctionVariableToken(this));
-        arguments.add(arg);
-        return arg;
-    }
-
-    public VariableDeclaration addLocalVariable(StringLiteral name) {
-        VariableDeclaration  var = new VariableDeclaration(name, new FunctionVariableToken(this));
-        localVariables.add(var);
-        return var;
-    }
-
     @Override
     public BlockContent buildExpression(MPyModule partOf) {
         // only valid for global functions,
         // since local (e.g. class bound) functions
         // don't have a variable they're
         // (i.e. their miniopython object) stored in
-        assert(isGlobal);
+        assert(scope == Scope.SCOPE_GLOBAL);
         return new Line("global.get $%s".formatted(name.value()));
     }
 
@@ -182,7 +160,7 @@ public class FunctionDeclaration implements Expression {
         // since local (e.g. class bound) functions
         // don't have a variable they're
         // (i.e. their miniopython object) stored in
-        assert(isGlobal);
+        assert(scope == Scope.SCOPE_GLOBAL);
         return new Line("(global $%s (mut i32) (i32.const 0))".formatted(name.value()));
     }
 
@@ -195,7 +173,7 @@ public class FunctionDeclaration implements Expression {
         // simply leave its minipython object on the stack
         // after creation.
         Block saveGlobal;
-        if (isGlobal) {
+        if (scope == Scope.SCOPE_GLOBAL) {
             saveGlobal = new Block(
                 "",
                 new Line("global.set $%s".formatted(name.value())),

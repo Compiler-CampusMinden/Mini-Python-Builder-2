@@ -1,9 +1,8 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
@@ -37,23 +36,71 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class ClassAttrAssignment {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
+        StringLiteral sA = new StringLiteral("a");
+        StringLiteral sCapitalA = new StringLiteral("A");
+        StringLiteral sSelf = new StringLiteral("self");
+        StringLiteral sInit = new StringLiteral("__init__");
+        StringLiteral sInitNewA = new StringLiteral("initialising new A");
 
-        StringLiteral a = mod.newString("a");
-        VariableDeclaration varA = mod.newVariable(a);
+        VariableDeclaration varA = new VariableDeclaration(sA);
 
-        MPyClass clazz = mod.newClass(mod.newString("A"), Builtins.TYPE_OBJECT, Map.of());
+        VariableDeclaration varSelf_A_init = new VariableDeclaration(sSelf, Scope.SCOPE_LOCAL);
+        MPyClass clsA = new MPyClass(
+            sCapitalA,
+            Builtins.TYPE_OBJECT,
+            Map.of(),
+            Set.of(
+                new FunctionDeclaration(
+                    sInit,
+                    List.of(
+                        varSelf_A_init
+                    ),
+                    Set.of(),
+                    List.of(
+                        new Call(
+                            Builtins.FUNCTION_SUPER,
+                            List.of(varSelf_A_init)
+                        ),
+                        new Call(
+                            Builtins.FUNCTION_PRINT,
+                            List.of(
+                                sInitNewA
+                            )
+                        ),
+                        new AttributeAssignment(
+                            new AttributeReference(varSelf_A_init, sA),
+                            new IntLiteral(42)
+                        )
+                    ),
+                    Scope.SCOPE_LOCAL
+                )
+            )
+        );
 
-        List<Statement> initBody = new LinkedList<>();
-        FunctionDeclaration init = clazz.newFunction(mod.newString("__init__"), initBody);
-        VariableDeclaration self = init.addArgument(mod.newString("self"));
-        initBody.add(new Call(Builtins.FUNCTION_SUPER, List.of(self)));
-        initBody.add(new Call(Builtins.FUNCTION_PRINT, List.of(mod.newString("initialising new A"))));
-        initBody.add(new AttributeAssignment(new AttributeReference(self, a), new IntLiteral(42)));
-
-        module.add(new VariableAssignment(varA, new Call(clazz, List.of())));
-        module.add(new Call(Builtins.FUNCTION_PRINT, List.of(new AttributeReference(varA, a))));
+        MPyModule mod = new MPyModule(
+            List.of(
+                new VariableAssignment(
+                    varA,
+                    new Call(clsA, List.of())
+                ),
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new AttributeReference(varA, sA)
+                    )
+                )
+            ),
+            Set.of(varA),
+            Set.of(clsA),
+            Set.of(),
+            Set.of(
+                sA,
+                sCapitalA,
+                sSelf,
+                sInit,
+                sInitNewA
+            )
+        );
 
         new WasmtimeCliRunner().run(mod.build());
     }

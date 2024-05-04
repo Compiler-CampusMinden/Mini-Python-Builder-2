@@ -1,9 +1,10 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
+import minipython.builder.wasm.lang.literal.StringLiteral;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -18,15 +19,24 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class PrintString {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
+        StringLiteral sHelloWorld = new StringLiteral("Hello World");
 
-        module.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                mod.newString("Hello World")
-            })
-        ));
+        MPyModule mod = new MPyModule(
+            List.of(
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        sHelloWorld
+                    )
+                )
+            ),
+            Set.of(),
+            Set.of(),
+            Set.of(),
+            Set.of(
+                sHelloWorld
+            )
+        );
 
         new WasmtimeCliRunner().run(mod.build());
     }

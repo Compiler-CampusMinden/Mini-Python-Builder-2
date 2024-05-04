@@ -1,7 +1,9 @@
 package minipython.builder.wasm;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import minipython.builder.transform.Transformation;
@@ -22,8 +24,7 @@ import minipython.builder.wasm.lang.literal.TupleLiteral;
  */
 public class Transform {
 
-    // will be initialised during the module conversion
-    private MPyModule module = null;
+    private Set<StringLiteral> strings = new HashSet<>();
 
     private class FunctionPrintTransform implements Transformation<minipython.builder.lang.builtins.FunctionPrint, FunctionPrint, Transform> {
 
@@ -56,9 +57,10 @@ public class Transform {
     private class StringLiteralTransform implements Transformation<minipython.builder.lang.literal.StringLiteral, StringLiteral, Transform> {
 
         @Override
-        public StringLiteral apply(minipython.builder.lang.literal.StringLiteral from, Transform context,
-                TransformationManager manager) {
-            return context.module.newString(from.value());
+        public StringLiteral apply(minipython.builder.lang.literal.StringLiteral from, Transform context, TransformationManager manager) {
+            StringLiteral lit = new StringLiteral(from.value());
+            context.strings.add(lit);
+            return lit;
         }
 
         @Override
@@ -104,8 +106,7 @@ public class Transform {
             // (e.g. stringliteral)
             // inject this module instance here
             List<Statement> module = new LinkedList<>();
-            MPyModule mod = new MPyModule(module);
-            context.module = mod;
+            MPyModule mod = new MPyModule(module, context.strings);
 
             // can't use streams here, since Stream#forEach does not
             // guarantee order

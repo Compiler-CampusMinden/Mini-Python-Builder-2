@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,67 +25,42 @@ import minipython.builder.wasm.lang.variables.VariableDeclaration;
  * The top-level element of a MiniPython program.
  */
 public class MPyModule {
+
     private final List<Statement> body;
+
     private Set<RuntimeImport> importedRuntimeFunctions = new HashSet<>();
-    private List<StringLiteral> strings = new LinkedList<>();
+
+    private Set<StringLiteral> strings;
+
     private Set<VariableDeclaration> variables = new HashSet<>();
+
     private Set<FunctionDeclaration> functions = new HashSet<>();
+
     private Set<MPyClass> classes = new HashSet<>();
 
-    public final BuiltinStrings BUILTIN_STRINGS = new BuiltinStrings(this);
+    public final BuiltinStrings BUILTIN_STRINGS;
 
     public class BuiltinStrings {
         public final StringLiteral ATTR_FUNC_BOOL;
 
+        private void addAll(MPyModule owner) {
+            owner.strings.addAll(Set.of(
+                ATTR_FUNC_BOOL
+            ));
+        }
+
         private BuiltinStrings(MPyModule owner) {
-            ATTR_FUNC_BOOL = owner.newString("__bool__");
-        }
-    }
+            ATTR_FUNC_BOOL = new StringLiteral("__bool__");
 
-    /**
-     * This class is used to enforce string creation via \a newString.
-     *
-     * This allows to easily create unique identifiers for each string.
-     */
-    public class StringToken{
-        /**
-         * Module wide unique identifier of the string.
-         */
-        public final String identifier;
-        /**
-         * Tracks which module created this instance.
-         */
-        public final MPyModule owner;
-
-        private StringToken(String identifier, MPyModule owner) {
-            this.identifier = identifier;
-            this.owner = owner;
-        }
-    }
-
-    public class VariableToken {
-        public final MPyModule owner;
-
-        private VariableToken(MPyModule owner) {
-            this.owner = owner;
-        }
-
-    }
-
-    public class FunctionToken {
-        public final MPyModule owner;
-
-        private FunctionToken(MPyModule owner) {
-            this.owner = owner;
-        }
-
-    }
-
-    public class ClassToken {
-        public final MPyModule owner;
-
-        private ClassToken(MPyModule owner) {
-            this.owner = owner;
+            try {
+                this.addAll(owner);
+            // modifying #strings might fail,
+            // if it is an immutable set.
+            // In that case, recreate #strings as a mutable set.
+            } catch (UnsupportedOperationException _e) {
+                owner.strings = new HashSet<>(owner.strings);
+                this.addAll(owner);
+            }
         }
     }
 
@@ -94,38 +68,35 @@ public class MPyModule {
         return 0;
     }
 
-    /**
-     * Create a new string literal.
-     */
-    public StringLiteral newString(String value) {
-        StringLiteral literal = new StringLiteral(value, new StringToken("string" + strings.size(), this));
-        strings.add(literal);
-        return literal;
-    }
+    private int stringIdentifierCount = 0;
 
-    public VariableDeclaration newVariable(StringLiteral name) {
-        VariableDeclaration var = new VariableDeclaration(name, new VariableToken(this));
-        variables.add(var);
-        return var;
-    }
-
-    public FunctionDeclaration newFunction(StringLiteral name, List<Statement> body) {
-        FunctionDeclaration func = new FunctionDeclaration(new FunctionToken(this), name, body);
-        functions.add(func);
-        return func;
-    }
-
-    public MPyClass newClass(StringLiteral name, Expression parent, Map<StringLiteral, Expression> classAttributes) {
-        MPyClass clazz = new MPyClass(new ClassToken(this), name, parent, classAttributes);
-        classes.add(clazz);
-        return clazz;
+    public String nextStringIdentifier() {
+        return "string" + stringIdentifierCount++;
     }
 
     /**
      * @param body statements in the global scope of the MiniPython program
      */
-    public MPyModule(List<Statement> body) {
+    public MPyModule(List<Statement> body, Set<VariableDeclaration> globalVariables, Set<MPyClass> classes, Set<FunctionDeclaration> functions, Set<StringLiteral> strings) {
         this.body = body;
+        this.variables = globalVariables;
+        this.classes = classes;
+        this.functions = functions;
+        this.strings = strings;
+
+        this.BUILTIN_STRINGS = new BuiltinStrings(this);
+    }
+
+    public MPyModule(List<Statement> body, Set<StringLiteral> strings) {
+        this(body, Set.of(), Set.of(), Set.of(), strings);
+    }
+
+    public MPyModule(List<Statement> body, Set<VariableDeclaration> globalVariables, Set<StringLiteral> strings) {
+        this(body, globalVariables, Set.of(), Set.of(), strings);
+    }
+
+    public MPyModule(List<Statement> body, Set<VariableDeclaration> globalVariables, Set<FunctionDeclaration> functions, Set<StringLiteral> strings) {
+        this(body, globalVariables, Set.of(), functions, strings);
     }
 
     public List<Statement> getBody() {
@@ -316,7 +287,7 @@ public class MPyModule {
                         new Line("i32.const %d".formatted(offset)),
                         new Line("i32.const %d".formatted(lit.value().length() + 1)),
                         new Line("call $init_string"),
-                        new Line("global.set $%s".formatted(lit.token().identifier))
+                        new Line("global.set $%s".formatted(lit.getIdentifier(this)))
             ));
             offset += lit.value().length() + 1;
         }
@@ -388,7 +359,7 @@ public class MPyModule {
             strings.append(lit.value());
             strings.append("\\00");
 
-            globals.add(new Line("(global $%s (mut i32) (i32.const 0))".formatted(lit.token().identifier)));
+            globals.add(new Line("(global $%s (mut i32) (i32.const 0))".formatted(lit.getIdentifier(this))));
         }
 
         strings.append("\")");

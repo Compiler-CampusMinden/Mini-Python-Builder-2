@@ -1,7 +1,7 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
 import minipython.builder.wasm.lang.literal.IntLiteral;
@@ -24,23 +24,31 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class AddInt {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
-        VariableDeclaration varA = mod.newVariable(mod.newString("a"));
-        StringLiteral add = mod.newString("__add__");
+        StringLiteral sA = new StringLiteral("a");
+        StringLiteral sAdd = new StringLiteral("__add__");
 
-        module.add(new VariableAssignment(varA, new IntLiteral(21)));
-        module.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
+        VariableDeclaration varA = new VariableDeclaration(sA);
+
+        MPyModule mod = new MPyModule(
+            List.of(
+                new VariableAssignment(varA, new IntLiteral(21)),
                 new Call(
-                    new AttributeReference(varA, add),
-                    List.of(new Expression[] {
-                        varA
-                    })
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new Call(
+                            new AttributeReference(varA, sAdd),
+                            List.of(
+                                varA
+                            )
+                        )
+                    )
                 )
-            })
-        ));
+            ),
+            Set.of(varA),
+            Set.of(),
+            Set.of(),
+            Set.of(sA, sAdd)
+        );
 
         new WasmtimeCliRunner().run(mod.build());
     }

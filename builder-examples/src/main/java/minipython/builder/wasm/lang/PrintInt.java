@@ -1,10 +1,11 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
 import minipython.builder.wasm.lang.literal.IntLiteral;
+import minipython.builder.wasm.lang.literal.StringLiteral;
 import minipython.builder.wasm.lang.variables.VariableAssignment;
 import minipython.builder.wasm.lang.variables.VariableDeclaration;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
@@ -22,17 +23,28 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class PrintInt {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
-        VariableDeclaration varA = mod.newVariable(mod.newString("a"));
+        StringLiteral sA = new StringLiteral("a");
 
-        module.add(new VariableAssignment(varA, new IntLiteral(42)));
-        module.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
-                varA
-            })
-        ));
+        VariableDeclaration varA = new VariableDeclaration(sA);
+
+        MPyModule mod = new MPyModule(
+            List.of(
+                new VariableAssignment(
+                    varA,
+                    new IntLiteral(42)
+                ),
+                new Call(
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        varA
+                    )
+                )
+            ),
+            Set.of(varA),
+            Set.of(),
+            Set.of(),
+            Set.of(sA)
+        );
 
         new WasmtimeCliRunner().run(mod.build());
     }

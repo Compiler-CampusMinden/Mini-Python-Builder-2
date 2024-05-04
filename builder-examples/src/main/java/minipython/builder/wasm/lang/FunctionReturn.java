@@ -1,8 +1,7 @@
 package minipython.builder.wasm.lang;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import minipython.builder.wasm.lang.builtin.Builtins;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
@@ -30,28 +29,44 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class FunctionReturn {
 
     public static void main(String[] args) throws Exception {
-        List<Statement> module = new ArrayList<>();
-        MPyModule mod = new MPyModule(module);
-        StringLiteral a = mod.newString("a");
-        VariableDeclaration varA = mod.newVariable(a);
+        StringLiteral sA = new StringLiteral("a");
+        StringLiteral sPrintA = new StringLiteral("printA");
 
-        List<Statement> printABody = new LinkedList<>();
-        FunctionDeclaration printA = mod.newFunction(mod.newString("printA"), printABody);
-        VariableDeclaration argA = printA.addArgument(a);
-        printABody.add(new ReturnStatement(argA));
+        VariableDeclaration varA = new VariableDeclaration(sA);
 
-        module.add(new VariableAssignment(varA, new BoolLiteral(false)));
-        module.add(new Call(
-            Builtins.FUNCTION_PRINT,
-            List.of(new Expression[] {
+        VariableDeclaration varA_printA = new VariableDeclaration(sA, Scope.SCOPE_LOCAL);
+        FunctionDeclaration fnPrintA = new FunctionDeclaration(
+            sPrintA,
+            List.of(varA_printA),
+            Set.of(),
+            List.of(
+                new ReturnStatement(varA_printA)
+            )
+        );
+
+        MPyModule mod = new MPyModule(
+            List.of(
+                new VariableAssignment(
+                    varA,
+                    new BoolLiteral(false)
+                ),
                 new Call(
-                    printA,
-                    List.of(new Expression[] {
-                        varA
-                    })
+                    Builtins.FUNCTION_PRINT,
+                    List.of(
+                        new Call(
+                            fnPrintA,
+                            List.of(
+                                varA
+                            )
+                        )
+                    )
                 )
-            })
-        ));
+            ),
+            Set.of(varA),
+            Set.of(),
+            Set.of(fnPrintA),
+            Set.of(sA, sPrintA)
+        );
 
         new WasmtimeCliRunner().run(mod.build());
     }
