@@ -1,10 +1,13 @@
-package minipython.builder.wasm.lang;
+package minipython.builder.transform.wasm;
 
 import java.util.List;
 import java.util.Set;
 
-import minipython.builder.wasm.lang.builtin.Builtins;
-import minipython.builder.wasm.lang.literal.StringLiteral;
+import minipython.builder.lang.Call;
+import minipython.builder.lang.MPyModule;
+import minipython.builder.lang.builtins.Builtins;
+import minipython.builder.lang.literal.StringLiteral;
+import minipython.builder.wasm.Transform;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -32,13 +35,10 @@ public class PrintString {
             ),
             Set.of(),
             Set.of(),
-            Set.of(),
-            Set.of(
-                sHelloWorld
-            )
+            Set.of()
         );
 
-        new WasmtimeCliRunner().run(mod.build());
+        new WasmtimeCliRunner().run(Transform.transform(mod).build());
     }
 
 }

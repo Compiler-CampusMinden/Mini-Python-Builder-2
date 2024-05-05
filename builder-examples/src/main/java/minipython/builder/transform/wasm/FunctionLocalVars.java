@@ -1,14 +1,17 @@
-package minipython.builder.wasm.lang;
+package minipython.builder.transform.wasm;
 
 import java.util.List;
 import java.util.Set;
 
-import minipython.builder.wasm.lang.builtin.Builtins;
-import minipython.builder.wasm.lang.functions.FunctionDeclaration;
-import minipython.builder.wasm.lang.literal.StringLiteral;
-import minipython.builder.wasm.lang.literal.IntLiteral;
-import minipython.builder.wasm.lang.variables.VariableAssignment;
-import minipython.builder.wasm.lang.variables.VariableDeclaration;
+import minipython.builder.lang.Call;
+import minipython.builder.lang.MPyModule;
+import minipython.builder.lang.Scope;
+import minipython.builder.lang.builtins.Builtins;
+import minipython.builder.lang.functions.FunctionDeclaration;
+import minipython.builder.lang.literal.IntLiteral;
+import minipython.builder.lang.variables.Assignment;
+import minipython.builder.lang.variables.VariableDeclaration;
+import minipython.builder.wasm.Transform;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -26,16 +29,13 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class FunctionLocalVars {
 
     public static void main(String[] args) throws Exception {
-        StringLiteral sPrintA = new StringLiteral("printA");
-        StringLiteral sA = new StringLiteral("a");
-
-        VariableDeclaration varA_printA = new VariableDeclaration(sA, Scope.SCOPE_LOCAL);
+        VariableDeclaration varA_printA = new VariableDeclaration("a", Scope.SCOPE_LOCAL);
         FunctionDeclaration fnPrintA = new FunctionDeclaration(
-            sPrintA,
+            "printA",
             List.of(),
             Set.of(varA_printA),
             List.of(
-                new VariableAssignment(
+                new Assignment(
                     varA_printA,
                     new IntLiteral(42)
                 ),
@@ -57,11 +57,10 @@ public class FunctionLocalVars {
             ),
             Set.of(),
             Set.of(),
-            Set.of(fnPrintA),
-            Set.of(sPrintA, sA)
+            Set.of(fnPrintA)
         );
 
-        new WasmtimeCliRunner().run(mod.build());
+        new WasmtimeCliRunner().run(Transform.transform(mod).build());
     }
 
 }

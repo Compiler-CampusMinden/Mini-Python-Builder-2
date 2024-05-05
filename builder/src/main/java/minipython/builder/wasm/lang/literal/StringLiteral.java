@@ -8,26 +8,35 @@ import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
 import minipython.builder.wasm.lang.MPyModule;
-import minipython.builder.wasm.lang.MPyModule.StringToken;
 
 /**
  * A string literal.
- *
- * String creation happens via \a Module#newString.
- *
- * @see MPyModule#newString
  */
-public record StringLiteral(
-    String value,
-    StringToken token
-) implements Expression {
+public class StringLiteral implements Expression {
+
+    private final String value;
+    private String identifier;
+
+    public StringLiteral(String value) {
+        this.value = value;
+        this.identifier = null;
+    }
+
+    public String value() {
+        return value;
+    }
+
+    public String getIdentifier(MPyModule partOf) {
+        // identifier hasn't been retrieved yet,
+        // create new one
+        if (identifier == null) {
+            identifier = partOf.nextStringIdentifier();
+        }
+        return identifier;
+    }
 
 	@Override
 	public BlockContent buildExpression(MPyModule partOf) {
-        if (partOf != token.owner) {
-            throw new IllegalArgumentException("mismatch between owning module and calling module");
-        }
-
         partOf.declareRuntimeImport(MPY_OBJ_INIT_STR_STATIC);
 
         return new Block(
@@ -38,14 +47,14 @@ public record StringLiteral(
                 "  ",
                 // get the pointer to the cstr allocated in
                 // the c-runtime module's memory
-                new Line("global.get $%s".formatted(token.identifier)),
+                new Line("global.get $%s".formatted(getIdentifier(partOf))),
                 new Line("call $__mpy_obj_init_str_static")
             )
         );
 	}
 
     public BlockContent buildExpressionCString(MPyModule partOf) {
-        return new Line("global.get $%s".formatted(token.identifier));
+        return new Line("global.get $%s".formatted(getIdentifier(partOf)));
     }
 
 	@Override

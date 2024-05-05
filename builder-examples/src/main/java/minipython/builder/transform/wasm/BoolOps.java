@@ -1,18 +1,21 @@
-package minipython.builder.wasm.lang;
+package minipython.builder.transform.wasm;
 
 import java.util.List;
 import java.util.Set;
 
-import minipython.builder.wasm.lang.builtin.Builtins;
-import minipython.builder.wasm.lang.functions.FunctionDeclaration;
-import minipython.builder.wasm.lang.functions.ReturnStatement;
-import minipython.builder.wasm.lang.literal.BoolLiteral;
-import minipython.builder.wasm.lang.literal.StringLiteral;
-import minipython.builder.wasm.lang.operators.bool.AndKeyword;
-import minipython.builder.wasm.lang.operators.bool.NotKeyword;
-import minipython.builder.wasm.lang.operators.bool.OrKeyword;
-import minipython.builder.wasm.lang.variables.VariableDeclaration;
-import minipython.builder.wasm.lang.variables.VariableAssignment;
+import minipython.builder.lang.Call;
+import minipython.builder.lang.MPyModule;
+import minipython.builder.lang.builtins.Builtins;
+import minipython.builder.lang.functions.FunctionDeclaration;
+import minipython.builder.lang.functions.ReturnStatement;
+import minipython.builder.lang.literal.BoolLiteral;
+import minipython.builder.lang.literal.StringLiteral;
+import minipython.builder.lang.keyword.AndKeyword;
+import minipython.builder.lang.keyword.NotKeyword;
+import minipython.builder.lang.keyword.OrKeyword;
+import minipython.builder.lang.variables.VariableDeclaration;
+import minipython.builder.lang.variables.Assignment;
+import minipython.builder.wasm.Transform;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -36,15 +39,12 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class BoolOps {
 
     public static void main(String[] args) throws Exception {
-        StringLiteral sA = new StringLiteral("a");
-        StringLiteral sTruth = new StringLiteral("truth");
         StringLiteral sTruthCalled = new StringLiteral("truth() called");
-        StringLiteral sPrintA = new StringLiteral("printA");
 
-        VariableDeclaration varA = new VariableDeclaration(sA);
+        VariableDeclaration varA = new VariableDeclaration("a");
 
         FunctionDeclaration fnTruth = new FunctionDeclaration(
-            sTruth,
+            "truth",
             List.of(
                 new Call(
                     Builtins.FUNCTION_PRINT,
@@ -55,7 +55,7 @@ public class BoolOps {
         );
 
         FunctionDeclaration fnPrintA = new FunctionDeclaration(
-            sPrintA,
+            "printA",
             List.of(
                 new Call(
                     Builtins.FUNCTION_PRINT,
@@ -104,7 +104,7 @@ public class BoolOps {
 
         MPyModule mod = new MPyModule(
             List.of(
-                new VariableAssignment(varA, new BoolLiteral(true)),
+                new Assignment(varA, new BoolLiteral(true)),
                 new Call(
                     fnPrintA,
                     List.of()
@@ -112,16 +112,10 @@ public class BoolOps {
             ),
             Set.of(varA),
             Set.of(),
-            Set.of(fnPrintA, fnTruth),
-            Set.of(
-                sA,
-                sTruth,
-                sTruthCalled,
-                sPrintA
-            )
+            Set.of(fnPrintA, fnTruth)
         );
 
-        new WasmtimeCliRunner().run(mod.build());
+        new WasmtimeCliRunner().run(Transform.transform(mod).build());
     }
 
 }

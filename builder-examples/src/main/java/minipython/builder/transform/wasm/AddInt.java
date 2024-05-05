@@ -1,14 +1,16 @@
-package minipython.builder.wasm.lang;
+package minipython.builder.transform.wasm;
 
 import java.util.List;
 import java.util.Set;
 
-import minipython.builder.wasm.lang.builtin.Builtins;
-import minipython.builder.wasm.lang.literal.IntLiteral;
-import minipython.builder.wasm.lang.literal.StringLiteral;
-import minipython.builder.wasm.lang.object.AttributeReference;
-import minipython.builder.wasm.lang.variables.VariableAssignment;
-import minipython.builder.wasm.lang.variables.VariableDeclaration;
+import minipython.builder.lang.Call;
+import minipython.builder.lang.MPyModule;
+import minipython.builder.lang.builtins.Builtins;
+import minipython.builder.lang.literal.IntLiteral;
+import minipython.builder.lang.object.AttributeReference;
+import minipython.builder.lang.variables.Assignment;
+import minipython.builder.lang.variables.VariableDeclaration;
+import minipython.builder.wasm.Transform;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -24,19 +26,16 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class AddInt {
 
     public static void main(String[] args) throws Exception {
-        StringLiteral sA = new StringLiteral("a");
-        StringLiteral sAdd = new StringLiteral("__add__");
-
-        VariableDeclaration varA = new VariableDeclaration(sA);
+        VariableDeclaration varA = new VariableDeclaration("a");
 
         MPyModule mod = new MPyModule(
             List.of(
-                new VariableAssignment(varA, new IntLiteral(21)),
+                new Assignment(varA, new IntLiteral(21)),
                 new Call(
                     Builtins.FUNCTION_PRINT,
                     List.of(
                         new Call(
-                            new AttributeReference(varA, sAdd),
+                            new AttributeReference(varA, "__add__"),
                             List.of(
                                 varA
                             )
@@ -46,11 +45,10 @@ public class AddInt {
             ),
             Set.of(varA),
             Set.of(),
-            Set.of(),
-            Set.of(sA, sAdd)
+            Set.of()
         );
 
-        new WasmtimeCliRunner().run(mod.build());
+        new WasmtimeCliRunner().run(Transform.transform(mod).build());
     }
 
 }

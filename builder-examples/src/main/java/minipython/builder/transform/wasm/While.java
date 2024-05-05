@@ -1,15 +1,17 @@
-package minipython.builder.wasm.lang;
+package minipython.builder.transform.wasm;
 
 import java.util.List;
 import java.util.Set;
 
-import minipython.builder.wasm.lang.builtin.Builtins;
-import minipython.builder.wasm.lang.literal.IntLiteral;
-import minipython.builder.wasm.lang.literal.StringLiteral;
-import minipython.builder.wasm.lang.object.AttributeReference;
-import minipython.builder.wasm.lang.operators.control_flow.WhileStatement;
-import minipython.builder.wasm.lang.variables.VariableAssignment;
-import minipython.builder.wasm.lang.variables.VariableDeclaration;
+import minipython.builder.lang.Call;
+import minipython.builder.lang.MPyModule;
+import minipython.builder.lang.builtins.Builtins;
+import minipython.builder.lang.literal.IntLiteral;
+import minipython.builder.lang.object.AttributeReference;
+import minipython.builder.lang.conditions.WhileStatement;
+import minipython.builder.lang.variables.Assignment;
+import minipython.builder.lang.variables.VariableDeclaration;
+import minipython.builder.wasm.Transform;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -28,20 +30,16 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class While {
 
     public static void main(String[] args) throws Exception {
-        StringLiteral sA = new StringLiteral("a");
-        StringLiteral sAdd = new StringLiteral("__add__");
-        StringLiteral sLt = new StringLiteral("__lt__");
-
-        VariableDeclaration varA = new VariableDeclaration(sA);
+        VariableDeclaration varA = new VariableDeclaration("a");
 
         MPyModule mod = new MPyModule(
             List.of(
-                new VariableAssignment(varA, new IntLiteral(0)),
+                new Assignment(varA, new IntLiteral(0)),
                 new WhileStatement(
                     new Call(
                         new AttributeReference(
                             varA,
-                            sLt
+                            "__lt__"
                         ),
                         List.of(new IntLiteral(10))
                     ),
@@ -52,12 +50,12 @@ public class While {
                                 varA
                             )
                         ),
-                        new VariableAssignment(
+                        new Assignment(
                             varA,
                             new Call(
                                 new AttributeReference(
                                     varA,
-                                    sAdd
+                                    "__add__"
                                 ),
                                 List.of(new IntLiteral(1))
                             )
@@ -67,12 +65,11 @@ public class While {
             ),
             Set.of(varA),
             Set.of(),
-            Set.of(),
-            Set.of(sA, sAdd, sLt)
+            Set.of()
         );
 
 
-        new WasmtimeCliRunner().run(mod.build());
+        new WasmtimeCliRunner().run(Transform.transform(mod).build());
     }
 
 }

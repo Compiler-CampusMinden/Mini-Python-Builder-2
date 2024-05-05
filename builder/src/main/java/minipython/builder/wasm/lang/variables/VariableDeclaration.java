@@ -9,60 +9,39 @@ import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
 import minipython.builder.wasm.lang.MPyModule;
-import minipython.builder.wasm.lang.MPyModule.VariableToken;
-import minipython.builder.wasm.lang.functions.FunctionDeclaration;
-import minipython.builder.wasm.lang.functions.FunctionDeclaration.FunctionVariableToken;
+import minipython.builder.wasm.lang.Scope;
 import minipython.builder.wasm.lang.literal.StringLiteral;
 
 /**
  * A variable declaration; in contrast to MiniPython itself, variables must be declared explicitly before assignment/referencing them.
- *
- * New global variables are created with \a {@link MPyModule#newVariable(String)}.
- *
- * @see MPyModule#newVariable(String)
  */
 public class VariableDeclaration implements Expression {
 
     private final StringLiteral name;
 
-    private final Object token;
-
-    private final boolean isGlobal;
+    private final Scope scope;
 
     /**
-     * Create a new global variable declaration.
-     *
-     * Create new variables with \a {@link MPyModule#newVariable(String)}.
-     *
-     * @see MPyModule#newVariable(String)
+     * Create a new variable declaration.
      */
-    public VariableDeclaration(StringLiteral name, VariableToken token) {
-        this.token = token;
+    public VariableDeclaration(StringLiteral name, Scope scope) {
         this.name = name;
-        this.isGlobal = true;
+        this.scope = scope;
     }
 
     /**
-     * Create a new local variable declaration.
-     *
-     * Create new variables for arguments with \a {@link FunctionDeclaration#addArgument(StringLiteral)}.
-     * Create new variables for local variables with \a {@link FunctionDeclaration#addLocalVariable(StringLiteral)}.
-     *
-     * @see FunctionDeclaration#addArgument(StringLiteral)
-     * @see FunctionDeclaration#addLocalVariable(StringLiteral)
+     * Create a new <b>global</b> variable declaration.
      */
-    public VariableDeclaration(StringLiteral name, FunctionVariableToken token) {
-        this.token = token;
-        this.name = name;
-        this.isGlobal = false;
+    public VariableDeclaration(StringLiteral name) {
+        this(name, Scope.SCOPE_GLOBAL);
     }
 
     protected boolean isGlobal() {
-        return this.isGlobal;
+        return this.scope == Scope.SCOPE_GLOBAL;
     }
 
     protected String kind() {
-        return this.isGlobal ? "global" : "local";
+        return this.isGlobal() ? "global" : "local";
     }
 
     public String name() {
@@ -79,7 +58,7 @@ public class VariableDeclaration implements Expression {
     }
 
     public BlockContent buildDeclaration(MPyModule partOf) {
-        if (isGlobal) {
+        if (isGlobal()) {
             return new Line("(global $%s (mut i32) (i32.const 0))".formatted(name.value()));
         } else {
             return new Line("(local $%s i32)".formatted(name.value()));

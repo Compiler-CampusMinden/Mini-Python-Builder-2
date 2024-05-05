@@ -1,17 +1,21 @@
-package minipython.builder.wasm.lang;
+package minipython.builder.transform.wasm;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import minipython.builder.wasm.lang.builtin.Builtins;
-import minipython.builder.wasm.lang.functions.FunctionDeclaration;
-import minipython.builder.wasm.lang.literal.IntLiteral;
-import minipython.builder.wasm.lang.literal.StringLiteral;
-import minipython.builder.wasm.lang.object.AttributeReference;
-import minipython.builder.wasm.lang.operators.control_flow.IfThenElseStatement;
-import minipython.builder.wasm.lang.operators.control_flow.IfThenElseStatement.ConditionalBlock;
-import minipython.builder.wasm.lang.variables.VariableDeclaration;
+import minipython.builder.lang.Call;
+import minipython.builder.lang.MPyModule;
+import minipython.builder.lang.Scope;
+import minipython.builder.lang.builtins.Builtins;
+import minipython.builder.lang.functions.FunctionDeclaration;
+import minipython.builder.lang.literal.IntLiteral;
+import minipython.builder.lang.literal.StringLiteral;
+import minipython.builder.lang.object.AttributeReference;
+import minipython.builder.lang.conditions.IfThenElseStatement;
+import minipython.builder.lang.conditions.ConditionalBlock;
+import minipython.builder.lang.variables.VariableDeclaration;
+import minipython.builder.wasm.Transform;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -34,19 +38,14 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class IfThenElse {
 
     public static void main(String[] args) throws Exception {
-        StringLiteral sDo = new StringLiteral("do");
-        StringLiteral sA = new StringLiteral("a");
-        StringLiteral sLt = new StringLiteral("__lt__");
         StringLiteral sTooSmall = new StringLiteral("too small");
-        StringLiteral sEq = new StringLiteral("__eq__");
         StringLiteral sSpecialValue = new StringLiteral("special value");
-        StringLiteral sGt = new StringLiteral("__gt__");
         StringLiteral sTooBig = new StringLiteral("too big");
         StringLiteral sCorrect = new StringLiteral("correct :)");
 
-        VariableDeclaration varA_Do = new VariableDeclaration(sA, Scope.SCOPE_LOCAL);
+        VariableDeclaration varA_Do = new VariableDeclaration("a", Scope.SCOPE_LOCAL);
         FunctionDeclaration fnDo = new FunctionDeclaration(
-            sDo,
+            "do",
             List.of(varA_Do),
             Set.of(),
             List.of(
@@ -57,7 +56,7 @@ public class IfThenElse {
                 new IfThenElseStatement(
                     new ConditionalBlock(
                         new Call(
-                            new AttributeReference(varA_Do, sLt),
+                            new AttributeReference(varA_Do, "__lt__"),
                             List.of(new IntLiteral(42))
                         ),
                         List.of(new Call(
@@ -68,7 +67,7 @@ public class IfThenElse {
                     Optional.of(List.of(
                         new ConditionalBlock(
                             new Call(
-                                new AttributeReference(varA_Do, sEq),
+                                new AttributeReference(varA_Do, "__eq__"),
                                 List.of(new IntLiteral(1337))
                             ),
                             List.of(new Call(
@@ -78,7 +77,7 @@ public class IfThenElse {
                         ),
                         new ConditionalBlock(
                             new Call(
-                                new AttributeReference(varA_Do, sGt),
+                                new AttributeReference(varA_Do, "__gt__"),
                                 List.of(new IntLiteral(42))
                             ),
                             List.of(new Call(
@@ -116,21 +115,10 @@ public class IfThenElse {
             ),
             Set.of(),
             Set.of(),
-            Set.of(fnDo),
-            Set.of(
-                sDo,
-                sA,
-                sLt,
-                sTooSmall,
-                sEq,
-                sSpecialValue,
-                sGt,
-                sTooBig,
-                sCorrect
-            )
+            Set.of(fnDo)
         );
 
-        new WasmtimeCliRunner().run(mod.build());
+        new WasmtimeCliRunner().run(Transform.transform(mod).build());
     }
 
 }

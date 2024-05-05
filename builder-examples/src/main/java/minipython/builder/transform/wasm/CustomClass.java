@@ -1,15 +1,19 @@
-package minipython.builder.wasm.lang;
+package minipython.builder.transform.wasm;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import minipython.builder.wasm.lang.builtin.Builtins;
-import minipython.builder.wasm.lang.functions.FunctionDeclaration;
-import minipython.builder.wasm.lang.literal.StringLiteral;
-import minipython.builder.wasm.lang.object.MPyClass;
-import minipython.builder.wasm.lang.variables.VariableAssignment;
-import minipython.builder.wasm.lang.variables.VariableDeclaration;
+import minipython.builder.lang.Call;
+import minipython.builder.lang.MPyModule;
+import minipython.builder.lang.Scope;
+import minipython.builder.lang.builtins.Builtins;
+import minipython.builder.lang.functions.FunctionDeclaration;
+import minipython.builder.lang.literal.StringLiteral;
+import minipython.builder.lang.object.MPyClass;
+import minipython.builder.lang.variables.Assignment;
+import minipython.builder.lang.variables.VariableDeclaration;
+import minipython.builder.wasm.Transform;
 import minipython.builder.wasm.run.WasmtimeCliRunner;
 
 /**
@@ -32,22 +36,17 @@ import minipython.builder.wasm.run.WasmtimeCliRunner;
 public class CustomClass {
 
     public static void main(String[] args) throws Exception {
-        StringLiteral sA = new StringLiteral("a");
-        StringLiteral sCapitalA = new StringLiteral("A");
         StringLiteral sInitNewA = new StringLiteral("initialising new A");
-        StringLiteral sInit = new StringLiteral("__init__");
-        StringLiteral sSelf = new StringLiteral("self");
 
-        VariableDeclaration varA = new VariableDeclaration(sA);
+        VariableDeclaration varA = new VariableDeclaration("a");
 
-        VariableDeclaration varSelf_A_init = new VariableDeclaration(sA, Scope.SCOPE_LOCAL);
+        VariableDeclaration varSelf_A_init = new VariableDeclaration("self", Scope.SCOPE_LOCAL);
         MPyClass clsA = new MPyClass(
-            sCapitalA,
-            Builtins.TYPE_OBJECT,
-            Map.of(),
+            "A",
+            Builtins.CLASS_MPY_OBJECT,
             Set.of(
                 new FunctionDeclaration(
-                    sInit,
+                    "__init__",
                     List.of(varSelf_A_init),
                     Set.of(),
                     List.of(
@@ -62,12 +61,13 @@ public class CustomClass {
                     ),
                     Scope.SCOPE_LOCAL
                 )
-            )
+            ),
+            Map.of()
         );
 
         MPyModule mod = new MPyModule(
             List.of(
-                new VariableAssignment(
+                new Assignment(
                     varA,
                     new Call(clsA, List.of())
                 ),
@@ -78,17 +78,10 @@ public class CustomClass {
             ),
             Set.of(varA),
             Set.of(clsA),
-            Set.of(),
-            Set.of(
-                sA,
-                sCapitalA,
-                sInitNewA,
-                sInit,
-                sSelf
-            )
+            Set.of()
         );
 
-        new WasmtimeCliRunner().run(mod.build());
+        new WasmtimeCliRunner().run(Transform.transform(mod).build());
     }
 
 }

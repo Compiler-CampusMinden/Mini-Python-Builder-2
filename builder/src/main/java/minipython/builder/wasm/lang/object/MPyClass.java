@@ -4,7 +4,6 @@ import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_INIT_TYPE;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_REF_INC;
 import static minipython.builder.wasm.lang.RuntimeImports.MPY_OBJ_SET_ATTR;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,8 +15,6 @@ import minipython.builder.wasm.Block;
 import minipython.builder.wasm.Line;
 import minipython.builder.wasm.lang.Expression;
 import minipython.builder.wasm.lang.MPyModule;
-import minipython.builder.wasm.lang.Statement;
-import minipython.builder.wasm.lang.MPyModule.ClassToken;
 import minipython.builder.wasm.lang.functions.FunctionDeclaration;
 import minipython.builder.wasm.lang.literal.StringLiteral;
 
@@ -27,29 +24,13 @@ public class MPyClass implements Expression {
     private final Expression parent;
     private final Map<StringLiteral, Expression> classAttributes;
 
-    private final Object token;
+    private final Set<FunctionDeclaration> functions;
 
-    private final Set<FunctionDeclaration> functions = new HashSet<>();
-
-    public class ClassFunctionToken {
-        MPyClass owner;
-
-        private ClassFunctionToken(MPyClass owner) {
-            this.owner = owner;
-        }
-    }
-
-    public MPyClass(ClassToken token, StringLiteral name, Expression parent, Map<StringLiteral, Expression> classAttributes) {
-        this.token = token;
+    public MPyClass(StringLiteral name, Expression parent, Map<StringLiteral, Expression> classAttributes, Set<FunctionDeclaration> functions) {
         this.name = name;
         this.parent = parent;
         this.classAttributes = classAttributes;
-    }
-
-    public FunctionDeclaration newFunction(StringLiteral name, List<Statement> body) {
-        FunctionDeclaration func = new FunctionDeclaration(new ClassFunctionToken(this), name, body);
-        functions.add(func);
-        return func;
+        this.functions = functions;
     }
 
     @Override
