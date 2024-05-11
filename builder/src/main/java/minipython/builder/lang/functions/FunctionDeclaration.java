@@ -23,4 +23,13 @@ public record FunctionDeclaration(
     public FunctionDeclaration(String name, List<Statement> body) {
         this(name, List.of(), Set.of(), body);
     }
+
+    public boolean equals(Object other) {
+        return this == other;
+    }
+
+    public int hashCode() {
+        // unoverriden hashCode, which does not recurse into record's attributes
+        return System.identityHashCode(this);
+    }
 }

@@ -49,6 +49,10 @@ public class Function extends Reference {
         this.localVariables = localVariables;
     }
 
+    public List<Statement> body() {
+        return body;
+    }
+
     /**
      * Creates a unique method name used in emitted C code (auxiliary method, called by MPyClass)
      *

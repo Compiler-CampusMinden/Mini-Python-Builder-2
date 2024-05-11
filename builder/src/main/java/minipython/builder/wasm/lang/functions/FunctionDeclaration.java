@@ -52,6 +52,22 @@ public class FunctionDeclaration implements Expression {
         this(name, arguments, localVariables, body, Scope.SCOPE_GLOBAL);
     }
 
+    public Scope scope() {
+        return scope;
+    }
+
+    public List<Statement> body() {
+        return body;
+    }
+
+    public List<VariableDeclaration> arguments() {
+        return arguments;
+    }
+
+    public Set<VariableDeclaration> localVariables() {
+        return localVariables;
+    }
+
     public String name() {
         return name.value();
     }
