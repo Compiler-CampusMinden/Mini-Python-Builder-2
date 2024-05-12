@@ -60,7 +60,7 @@ public class BooleanTest {
         body.add(new Assignment(a, new BoolLiteral(true)));
 
         VariableDeclaration b = new VariableDeclaration("b");
-        globalVars.add(a);
+        globalVars.add(b);
         body.add(new Assignment(b, new BoolLiteral(false)));
 
         body.add(new Call(FUNCTION_PRINT, List.of(new Expression[] {
