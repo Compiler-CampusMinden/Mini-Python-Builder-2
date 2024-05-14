@@ -15,21 +15,6 @@ while the responsibility to implement cosmetics is shifted to users of the API (
 (E.g. the generic-to-CBuilder transformation implementation provides a static method to convert a generic Mini-Python program representation
 into a CBuilder specific one.)
 
-<!--
-Terminology:
-- generic/cbuilder/wasm API
-- cohesive set of classes forming representation, e.g. generic API or wasm API
-- source representation (from)
-- target representation (to)
-- usage of transformation API to obtain a target representation from a source representation -> source-to-target-transformation, e.g. generic-to-wasm-transformation
-
-Also:
-
-- pitfalls:
-    - input must always be most specific (output does not really matter - it supports automatic fallback to base class(es))
-
--->
-
 ## Goal
 
 The goal of this Transformation-API is to faciliate the transformation
@@ -48,14 +33,6 @@ Instead, it uses the naturally formed graph structure formed between objects
 in Java.
 
 ## Overview
-
-<!--
-- what happens in general?
-- what is what? i.e., why these two, why two, what happens where?
-    - transformation interface: how do I get class Z compatible with transformation goal from class A (which is part of the transformation 'origin?')
-    - transformation manager: class A may internally use class B - that transformation shouldn't be implemented as part of A's transformation (DRY; e.g. C also uses B) - instead theres another transformation B->Y, that can be used from A
-- a complete transformation implementation provides those transformation implementation for all possible
--->
 
 The `Transformation`-API is structured around
 the `Transformation` interface and the `TransformationManager` class.
