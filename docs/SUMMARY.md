@@ -32,7 +32,7 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 # Builder
 
 - [Public API]()
-- [Transformation/Lowering](./architecture/builder/transformations_lowering.md)
+- [Transformation/Lowering](architecture/builder/transformations_lowering.md)
 
 # Backends
 
