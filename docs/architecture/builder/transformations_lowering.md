@@ -73,17 +73,7 @@ point to the same, now converted, object
 after the transformation too.
 (I.e., transformation results are cached based on reference equality.)
 
-
-<figure>
-
-![](./references-caching.svg)
-
-<figcaption>
-
-Duplicated `FunctionDeclaration` Object without caching
-
-</figcaption>
-</figure>
+![Duplicated `FunctionDeclaration` Object without caching](./references-caching.svg)
 
 A complete transformation implementation from source representation to target representation thus contains a `Transformation` implementation for each class that is part of the source representation,
 each yielding a class that is part of the target representation.
@@ -154,16 +144,7 @@ This of course cannot work.
 
 With this in mind, the `Transformation` interface actually looks like this:
 
-<figure>
-
-![](./transformation-interface-postApply.svg)
-
-<figcaption>
-
-The `Transformation` interface, extended with a `postApply` method.
-
-</figcaption>
-</figure>
+![The `Transformation` interface, extended with a `postApply` method.](./transformation-interface-postApply.svg)
 
 The addition of the `postApply` method allows to delay
 the transformation of the recursive part of the datastructure
