@@ -8,7 +8,7 @@ the implemented transformations allow users of the generic (output format indepe
 to choose the backend they prefer,
 without having to change any of their uses of the Builder API.
 
-![](./builder-api-transformations.svg)
+![](builder-api-transformations.svg)
 
 Note that the `Transformation`-API only provides the raw building blocks for implementing such transformations,
 while the responsibility to implement cosmetics is shifted to users of the API (i.e. implementors of transformations).
@@ -65,7 +65,7 @@ into a class of the target representation.
 The `TransformationManager` then combines the individual
 `Transformation`s.
 
-![](./classes-transformation-api.svg)
+![](classes-transformation-api.svg)
 
 A class is only transformed once,
 to ensure that references to the same object
@@ -73,7 +73,7 @@ point to the same, now converted, object
 after the transformation too.
 (I.e., transformation results are cached based on reference equality.)
 
-![Duplicated `FunctionDeclaration` Object without caching](./references-caching.svg)
+![Duplicated `FunctionDeclaration` Object without caching](references-caching.svg)
 
 A complete transformation implementation from source representation to target representation thus contains a `Transformation` implementation for each class that is part of the source representation,
 each yielding a class that is part of the target representation.
@@ -144,7 +144,7 @@ This of course cannot work.
 
 With this in mind, the `Transformation` interface actually looks like this:
 
-![The `Transformation` interface, extended with a `postApply` method.](./transformation-interface-postApply.svg)
+![The `Transformation` interface, extended with a `postApply` method.](transformation-interface-postApply.svg)
 
 The addition of the `postApply` method allows to delay
 the transformation of the recursive part of the datastructure
