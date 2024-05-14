@@ -1,0 +1,32 @@
+@startuml
+
+left to right direction
+
+
+
+package "wasm (without caching)" {
+    object "FunctionDeclaration(fluppi)" as wwf1
+    object "FunctionDeclaration(fluppi)" as wwf2
+    object "Call(arg1)" as wwc1
+    object "Call(arg2)" as wwc2
+    wwc1 *-- wwf1
+    wwc2 *-- wwf2
+}
+
+package "wasm (actual)" {
+    object "FunctionDeclaration(fluppi)" as wf
+    object "Call(arg1)" as wc1
+    object "Call(arg2)" as wc2
+    wc1 *-- wf
+    wc2 *-- wf
+}
+
+package generic {
+    object "FunctionDeclaration(fluppi)" as f
+    object "Call(arg1)" as c1
+    object "Call(arg2)" as c2
+    c1 *-- f
+    c2 *-- f
+}
+
+@enduml
