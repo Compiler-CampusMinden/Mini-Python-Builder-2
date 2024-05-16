@@ -1,0 +1,16 @@
+@startuml
+
+start
+:generic API;
+split
+:generic-to-CBuilder transformation;
+:cbuilder API;
+:c-code of the Mini-Python program;
+split again
+:generic-to-WASM transformation;
+:WASM API;
+:WASM code of the Mini-Python program;
+end split
+end
+
+@enduml

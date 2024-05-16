@@ -1,0 +1,22 @@
+@startuml
+
+left to right direction
+
+package minipython.builder.transform {
+    interface Transformation<From, To, Context> {
+        +To apply(From from, Context context, TransformationManager manager)
+
+        +Class<Context> getContextClass()
+    }
+
+    class TransformationManager {
+        -Map<Class<?>, Transformation<?, ?, ?>> transformations
+        -Map<Object, Object> transformationCache
+
+        +TransformationManager()
+        +<From> void registerTransformation(Transformation<From, ?, ?> transformation, Class<From> fromClass)
+        +<From, To, Context> To transform(From from, Context context, Class<To> toClass)
+    }
+}
+
+@enduml

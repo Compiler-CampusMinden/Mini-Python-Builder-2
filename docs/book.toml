@@ -25,6 +25,7 @@ optional = true # if mdbook-pandoc is not installed, build only the html version
 
 [output.pandoc.profile.pdf]
 # to debug latex errors: change file ending to .tex
+from = "markdown+implicit_figures"
 output-file = "output.pdf"
 to = "latex"
 pdf-engine = "lualatex"
