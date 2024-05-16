@@ -1,0 +1,4 @@
+# regenerating the images on every build of the docs
+# is unnecessary overhead:
+# include them in the repo, even if they're binary files
+!**/*.svg

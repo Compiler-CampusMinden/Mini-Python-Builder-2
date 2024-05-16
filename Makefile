@@ -22,14 +22,16 @@ clean:
 	$(RM) -r ./docs-rendered
 	$(MAKE) --directory c-runtime clean
 
+PUML_SOURCES := $(shell find ./docs -type f -iname '*.puml')
+PUML_TARGETS := $(patsubst %.puml,%.svg, $(PUML_SOURCES))
+
 # render (plantuml) diagrams in the docs/ folders
-.PHONY: docs-diagrams
-docs-diagrams:
-	$(PLANTUML) -tsvg ./docs/**/*.puml
+$(PUML_TARGETS) : docs/%.svg: docs/%.puml
+	$(PLANTUML) -tsvg $<
 
 # render the docs/ with mdbook
 .PHONY: book
-book: docs-diagrams
+book: $(PUML_TARGETS)
 	mdbook build ./docs/
 
 .PHONY: book-docker
