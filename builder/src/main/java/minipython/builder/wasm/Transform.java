@@ -1,6 +1,7 @@
 package minipython.builder.wasm;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -151,12 +152,6 @@ public class Transform {
                 TransformationManager manager) {
 
             Scope scope = manager.transform(from.scope(), context, Scope.class);
-            boolean isFuncInit = scope == Scope.SCOPE_GLOBAL && from.name().equals("__init__");
-            VariableDeclaration prevFuncInitArgSelf = context.funcInitArgSelf;
-            // allow SuperCallTransform to access the self argument
-            if (isFuncInit) {
-                context.funcInitArgSelf = manager.transform(from.arguments().get(0), context, VariableDeclaration.class);
-            }
 
             FunctionDeclaration fn = new FunctionDeclaration(
                 manager.transform(from.name(), context, StringLiteral.class),
@@ -166,15 +161,36 @@ public class Transform {
                 from.localVariables().stream().map(l ->
                     manager.transform(l, context, VariableDeclaration.class)
                 ).collect(Collectors.toSet()),
-                from.body().stream().map(s ->
-                    manager.transform(s, context, Statement.class)
-                ).toList(),
+                new LinkedList<>(),
                 scope
             );
 
-            context.funcInitArgSelf = prevFuncInitArgSelf;
-
             return fn;
+        }
+
+        @Override
+        public void postApply(minipython.builder.lang.functions.FunctionDeclaration from, FunctionDeclaration to, Transform context, TransformationManager manager) {
+            boolean isFuncInit = to.scope() == Scope.SCOPE_GLOBAL && from.name().equals("__init__");
+            VariableDeclaration prevFuncInitArgSelf = context.funcInitArgSelf;
+            // allow SuperCallTransform to access the self argument
+            if (isFuncInit) {
+                context.funcInitArgSelf = manager.transform(from.arguments().get(0), context, VariableDeclaration.class);
+            }
+
+            // in recursive functions, body refers to the function currently
+            // being transformed;
+            // causing the transformation machinery to endlessly recurse
+            // when transforming such a function.
+            // Therefore move transformation of the body into postApply,
+            // so that the FunctionDeclaration transformation itself is already
+            // cached, and no recursion happens.
+            to.body().addAll(
+                from.body().stream().map(s ->
+                    manager.transform(s, context, Statement.class)
+                ).toList()
+            );
+
+            context.funcInitArgSelf = prevFuncInitArgSelf;
         }
 
         @Override

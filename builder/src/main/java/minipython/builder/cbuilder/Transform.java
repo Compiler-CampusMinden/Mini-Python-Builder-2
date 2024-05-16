@@ -137,10 +137,26 @@ public class Transform {
 
             return new Function(
                 from.name(),
-                from.body().stream().map(s -> manager.transform(s, context, Statement.class)).collect(Collectors.toList()),
+                new LinkedList<>(),
                 arguments,
                 from.localVariables().stream().map(v -> manager.transform(v, context, VariableDeclaration.class)).collect(Collectors.toList())
             );
+        }
+
+        @Override
+        public void postApply(minipython.builder.lang.functions.FunctionDeclaration from, Function to, Transform context, TransformationManager manager) {
+
+            // in recursive functions, body refers to the function currently
+            // being transformed;
+            // causing the transformation machinery to endlessly recurse
+            // when transforming such a function.
+            // Therefore move transformation of the body into postApply,
+            // so that the FunctionDeclaration transformation itself is already
+            // cached, and no recursion happens.
+            to.body().addAll(
+                from.body().stream().map(s -> manager.transform(s, context, Statement.class)).collect(Collectors.toList())
+            );
+
         }
 
         @Override
