@@ -447,7 +447,6 @@ builder.addClass(classC);
 
 ``` python
 objectC = C(5)
-objectC = C.__init__(5)     # Alternative zu "C(5)"
 
 print(objectC.getX())
 ```
