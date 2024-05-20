@@ -14,6 +14,10 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 
 # Verwendung (de)
 
+- [Übersicht des Builders](builder.md)
+- [Setup](setup.md)
+- [Verwendung des generischen Builders]()
+- [Verwendung des WASM Builders]()
 - [Verwendung des CBuilders](usage_cbuilder.md)
 - [Verwendung des generierten C-Codes](usage_generated_code.md)
 
