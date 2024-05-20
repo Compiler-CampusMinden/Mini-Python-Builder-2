@@ -18,7 +18,7 @@ public class WasmtimeCliRunner implements WasmRunner {
             }
         }
 
-        WasmtimeCli cli = new WasmtimeCli("x86_64-linux");
+        WasmtimeCli cli = new WasmtimeCli(getSystem());
         CruntimeWasm cruntime = new CruntimeWasm();
 
         String cliPath = System.getenv("MPY_BUILDER_WASM_USE_SYSTEM_WASMTIME") != null ? "wasmtime" : cli.getPath().toString();
@@ -35,4 +35,42 @@ public class WasmtimeCliRunner implements WasmRunner {
         // run was successful - no need to keep the file
         watFile.toFile().delete();
 	}
+
+    /**
+     * Assemble an architecture string conforming to the naming scheme
+     * of wasmtime binaries (ie `<arch>-<os>`, eg x86_64-windows).
+     */
+    private static String getSystem() {
+        String os = System.getProperty("os.name");
+        // os.name is not standardized,
+        // best effort attempt to make sure
+        // known OSs can be recognized by normalizing them
+        os = os.toLowerCase().replaceAll("[^a-z0-9]+", "");
+        if (os.contains("linux")) {
+            os = "linux";
+        } else if (os.contains("win")) {
+            os = "windows";
+        } else if (os.contains("mac") || os.contains("osx")) {
+            os = "macos";
+        } else {
+            throw new IllegalStateException("Unknown or unsupported OS: '%s'".formatted(System.getProperty("os.name")));
+        }
+
+        String arch = System.getProperty("os.arch");
+        // os.arch is not standardized,
+        // best effort attempt to make sure
+        // known arches can be recognized by normalizing them
+        arch = arch.toLowerCase().replaceAll("[^a-z0-9]+", "");
+        // no check for x86_64 necessary, normalizing removes
+        // everything but letters from the alphabet & numbers
+        if (arch.matches("^(x8664|amd64|ia32e|em64t|x64)$")) {
+            arch = "x86_64";
+        } else if (arch.equals("aarch64")) {
+            arch = "aarch64";
+        } else {
+            throw new IllegalStateException("Unknown or unsupported arch: '%s'".formatted(System.getProperty("os.arch")));
+        }
+
+        return "%s-%s".formatted(arch, os);
+    }
 }
