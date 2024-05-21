@@ -41,6 +41,7 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 # Backends
 
 - [c-runtime](./architecture/backends/c-runtime.md)
+- [wasm](./architecture/backends/wasm.md)
 
 -----------
 
