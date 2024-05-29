@@ -19,7 +19,7 @@ and thus the `c-runtime` library can be supplied as part of the builder's .jar-a
 In general,
 the WASM API works quite similar to the CBuilder API.
 WASM poses some unique challenges though,
-since its data and memory models 
+since its data and memory models
 aren't equivalent to the respective models of the C language.
 
 ## Using the `c-runtime` from WASM
@@ -80,6 +80,20 @@ does not validate anything but the length of the initially allocated space for t
 I.e., for the strings to be correctly used by the c-runtime,
 they must be 0-byte terminated (as all other strings in plain c),
 but this is not enforced, assisted or checked by the c-runtime.
+
+In a similar way,
+all functions passed from the generated code to the `c-runtime`
+need different handling in WASM,
+compared to the pure C code from the CBuilder.
+This is because WASM has no function pointer concept.
+Instead,
+functions are stored in tables.
+Because there's currently no way to access multiple (or a specific) table(s)
+in C,
+the way this works is by exporting the default function table used
+in the `c-runtime`,
+importing this table in the generated code and appending the generated functions
+one by one to this table.
 
 ### Example
 
