@@ -33,6 +33,13 @@ char* __mpy_str_into_cstr(__MPyAllocedStr *str) {
     return str->str;
 }
 
+MPY_API __MPyObj *__mpy_builtins_get_fn_id(void) {
+    return __MPyFunc_id;
+}
+
+MPY_API __MPyObj *__mpy_builtins_get_fn_input(void) {
+    return __MPyFunc_input;
+}
 
 MPY_API __MPyObj *__mpy_builtins_get_fn_print(void) {
     return __MPyFunc_print;
@@ -42,8 +49,44 @@ __MPyObj *__mpy_builtins_get_fn_super(void) {
     return __mpy_super;
 }
 
+__MPyObj *__mpy_builtins_get_fn_type(void) {
+    return __MPyFunc_type;
+}
+
+__MPyObj *__mpy_builtins_get_type_boolean(void) {
+    return __MPyType_Boolean;
+}
+
+__MPyObj *__mpy_builtins_get_type_bound_method(void) {
+    return __MPyType_BoundMethod;
+}
+
+__MPyObj *__mpy_builtins_get_type_function(void) {
+    return __MPyType_Function;
+}
+
+__MPyObj *__mpy_builtins_get_type_none(void) {
+    return __MPyType_None;
+}
+
+__MPyObj *__mpy_builtins_get_type_num(void) {
+    return __MPyType_Num;
+}
+
 __MPyObj *__mpy_builtins_get_type_object(void) {
     return __MPyType_Object;
+}
+
+__MPyObj *__mpy_builtins_get_type_str(void) {
+    return __MPyType_Str;
+}
+
+__MPyObj *__mpy_builtins_get_type_Tuple(void) {
+    return __MPyType_Tuple;
+}
+
+__MPyObj *__mpy_builtins_get_type_Type(void) {
+    return __MPyType_Type;
 }
 
 __MPyGetArgsState* __mpy_args_init_malloced(const char *funcName, __MPyObj *args, __MPyObj *kwargs, unsigned int countPositionalArgs) {

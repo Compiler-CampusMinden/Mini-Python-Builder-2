@@ -16,9 +16,22 @@ import minipython.builder.wasm.lang.RuntimeImport.RuntimeImportType;
  */
 public class RuntimeImports {
 
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_BOOLEAN = new RuntimeImport("__mpy_builtins_get_type_boolean", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_BOUND_METHOD = new RuntimeImport("__mpy_builtins_get_type_bound_method", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_FUNCTION = new RuntimeImport("__mpy_builtins_get_type_function", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_NONE = new RuntimeImport("__mpy_builtins_get_type_none", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_NUM = new RuntimeImport("__mpy_builtins_get_type_num", List.of(), Optional.of(I32));
     public final static RuntimeImport MPY_BUILTINS_GET_TYPE_OBJECT = new RuntimeImport("__mpy_builtins_get_type_object", List.of(), Optional.of(I32));
-    public final static RuntimeImport MPY_BUILTINS_GET_FN_SUPER = new RuntimeImport("__mpy_builtins_get_fn_super", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_STR = new RuntimeImport("__mpy_builtins_get_type_str", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_TUPLE = new RuntimeImport("__mpy_builtins_get_type_tuple", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_TYPE_TYPE = new RuntimeImport("__mpy_builtins_get_type_type", List.of(), Optional.of(I32));
+
+    public final static RuntimeImport MPY_BUILTINS_GET_FN_ID = new RuntimeImport("__mpy_builtins_get_fn_id", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_FN_INPUT = new RuntimeImport("__mpy_builtins_get_fn_input", List.of(), Optional.of(I32));
     public final static RuntimeImport MPY_BUILTINS_GET_FN_PRINT = new RuntimeImport("__mpy_builtins_get_fn_print", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_FN_SUPER = new RuntimeImport("__mpy_builtins_get_fn_super", List.of(), Optional.of(I32));
+    public final static RuntimeImport MPY_BUILTINS_GET_FN_TYPE = new RuntimeImport("__mpy_builtins_get_fn_type", List.of(), Optional.of(I32));
+
     public final static RuntimeImport MPY_OBJ_SET_ATTR = new RuntimeImport("__mpy_obj_set_attr", List.of(new RuntimeImportType[]{I32, I32, I32}), Optional.of(I32));
     public final static RuntimeImport MPY_OBJ_GET_ATTR = new RuntimeImport("__mpy_obj_get_attr", List.of(new RuntimeImportType[]{I32, I32}), Optional.of(I32));
     public final static RuntimeImport MPY_OBJ_REF_DEC = new RuntimeImport("__mpy_obj_ref_dec", List.of(new RuntimeImportType[]{I32}), Optional.empty());
