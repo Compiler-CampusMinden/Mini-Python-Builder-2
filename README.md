@@ -8,15 +8,17 @@ This repository provides
 2.  a **Java-based [builder]**, and
 3.  a compatible **[C runtime environment]**.
 
-The builder emits C code via API calls (analogous to [LLVM](https://llvm.org/)): To generate C code for a Mini
-Python program, you call the builder functions while traversing the AST. This generated
-code can be compiled into an executable application using a standard C compiler and the
+The builder emits code via API calls (analogous to [LLVM](https://llvm.org/)): To generate code for a Mini
+Python program, you call the builder functions while traversing the AST.
+Based on that,
+the generation of, e.g. C code, takes place;
+this code can be compiled into an executable application using a standard C compiler and the
 C runtime environment provided here.
 
 For details please refer to the [documentation].
 
 [Mini Python]: docs/syntax_definition.md
-[builder]: src/main/java/CBuilder/
+[builder]: builder/src/main/java/minipython/builder
 [C runtime environment]: c-runtime/
 [documentation]: docs/readme.md
 
@@ -24,7 +26,7 @@ For details please refer to the [documentation].
 ## Required software
 
 To work with the builder, you need **Java**. The actual release does not really matter
-(Java 9 and newer should work), however [JDK 21 LTS] is recommended.
+(Java 17 and newer should work), however [JDK 21 LTS] is recommended.
 
 To compile the generated C code, you need **[make]** and a **C compiler** (e.g. [gcc] or
 [clang]).
