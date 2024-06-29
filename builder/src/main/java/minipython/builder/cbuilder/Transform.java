@@ -31,8 +31,20 @@ import minipython.builder.cbuilder.lang.objects.functions.Function;
 import minipython.builder.cbuilder.lang.objects.functions.ReturnStatement;
 import minipython.builder.cbuilder.lang.variables.Assignment;
 import minipython.builder.cbuilder.lang.variables.VariableDeclaration;
+import minipython.builder.lang.builtins.ClassMPyBoolean;
+import minipython.builder.lang.builtins.ClassMPyBoundMethod;
+import minipython.builder.lang.builtins.ClassMPyFunction;
+import minipython.builder.lang.builtins.ClassMPyNone;
+import minipython.builder.lang.builtins.ClassMPyNum;
 import minipython.builder.lang.builtins.ClassMPyObject;
+import minipython.builder.lang.builtins.ClassMPyStr;
+import minipython.builder.lang.builtins.ClassMPyTuple;
+import minipython.builder.lang.builtins.ClassMPyType;
+import minipython.builder.lang.builtins.FunctionId;
+import minipython.builder.lang.builtins.FunctionInput;
 import minipython.builder.lang.builtins.FunctionPrint;
+import minipython.builder.lang.builtins.FunctionSuper;
+import minipython.builder.lang.builtins.FunctionType;
 import minipython.builder.transform.Transformation;
 import minipython.builder.transform.TransformationManager;
 
@@ -41,6 +53,136 @@ import minipython.builder.transform.TransformationManager;
  * to the representation of the C builder.
  */
 public class Transform {
+
+    private class FunctionIdTransform implements Transformation<minipython.builder.lang.builtins.FunctionId, Reference, Transform> {
+
+        @Override
+        public Reference apply(FunctionId from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyFunc_id");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class FunctionInputTransform implements Transformation<minipython.builder.lang.builtins.FunctionInput, Reference, Transform> {
+
+        @Override
+        public Reference apply(FunctionInput from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyFunc_input");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class FunctionPrintTransform implements Transformation<minipython.builder.lang.builtins.FunctionPrint, Reference, Transform> {
+
+        @Override
+        public Reference apply(FunctionPrint from, Transform context, TransformationManager manager) {
+            return new Reference("__MPYFunc_print");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class FunctionSuperTransform implements Transformation<minipython.builder.lang.builtins.FunctionSuper, Reference, Transform> {
+
+        @Override
+        public Reference apply(FunctionSuper from, Transform context, TransformationManager manager) {
+            return new Reference("__mpy_super");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class FunctionTypeTransform implements Transformation<minipython.builder.lang.builtins.FunctionType, Reference, Transform> {
+
+        @Override
+        public Reference apply(FunctionType from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyFunc_type");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class ClassMPyBooleanTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyBoolean, Reference, Transform> {
+
+        @Override
+        public Reference apply(ClassMPyBoolean from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_Boolean");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class ClassMPyBoundMethodTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyBoundMethod, Reference, Transform> {
+
+        @Override
+        public Reference apply(ClassMPyBoundMethod from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_BoundMethod");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class ClassMPyFunctionTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyFunction, Reference, Transform> {
+
+        @Override
+        public Reference apply(ClassMPyFunction from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_Function");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class ClassMPyNoneTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyNone, Reference, Transform> {
+
+        @Override
+        public Reference apply(ClassMPyNone from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_None");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class ClassMPyNumTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyNum, Reference, Transform> {
+
+        @Override
+        public Reference apply(ClassMPyNum from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_Num");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
 
     private class ClassMPyObjectTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyObject, Reference, Transform> {
 
@@ -55,11 +197,37 @@ public class Transform {
         }
     }
 
-    private class FunctionPrintTransform implements Transformation<minipython.builder.lang.builtins.FunctionPrint, Reference, Transform> {
+    private class ClassMPyStrTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyStr, Reference, Transform> {
 
         @Override
-        public Reference apply(FunctionPrint from, Transform context, TransformationManager manager) {
-            return new Reference("print");
+        public Reference apply(ClassMPyStr from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_Str");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class ClassMPyTupleTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyTuple, Reference, Transform> {
+
+        @Override
+        public Reference apply(ClassMPyTuple from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_Tuple");
+        }
+
+        @Override
+        public Class<Transform> getContextClass() {
+            return Transform.class;
+        }
+    }
+
+    private class ClassMPyTypeTransform implements Transformation<minipython.builder.lang.builtins.ClassMPyType, Reference, Transform> {
+
+        @Override
+        public Reference apply(ClassMPyType from, Transform context, TransformationManager manager) {
+            return new Reference("__MPyType_Type");
         }
 
         @Override
@@ -444,8 +612,20 @@ public class Transform {
     public ProgramBuilder transform_(minipython.builder.lang.MPyModule module) {
         TransformationManager manager = new TransformationManager();
 
-        manager.registerTransformation(new ClassMPyObjectTransform(), minipython.builder.lang.builtins.ClassMPyObject.class);
+        manager.registerTransformation(new FunctionIdTransform(), minipython.builder.lang.builtins.FunctionId.class);
+        manager.registerTransformation(new FunctionInputTransform(), minipython.builder.lang.builtins.FunctionInput.class);
         manager.registerTransformation(new FunctionPrintTransform(), minipython.builder.lang.builtins.FunctionPrint.class);
+        manager.registerTransformation(new FunctionSuperTransform(), minipython.builder.lang.builtins.FunctionSuper.class);
+        manager.registerTransformation(new FunctionTypeTransform(), minipython.builder.lang.builtins.FunctionType.class);
+        manager.registerTransformation(new ClassMPyBooleanTransform(), minipython.builder.lang.builtins.ClassMPyBoolean.class);
+        manager.registerTransformation(new ClassMPyBoundMethodTransform(), minipython.builder.lang.builtins.ClassMPyBoundMethod.class);
+        manager.registerTransformation(new ClassMPyFunctionTransform(), minipython.builder.lang.builtins.ClassMPyFunction.class);
+        manager.registerTransformation(new ClassMPyNoneTransform(), minipython.builder.lang.builtins.ClassMPyNone.class);
+        manager.registerTransformation(new ClassMPyNumTransform(), minipython.builder.lang.builtins.ClassMPyNum.class);
+        manager.registerTransformation(new ClassMPyObjectTransform(), minipython.builder.lang.builtins.ClassMPyObject.class);
+        manager.registerTransformation(new ClassMPyStrTransform(), minipython.builder.lang.builtins.ClassMPyStr.class);
+        manager.registerTransformation(new ClassMPyTupleTransform(), minipython.builder.lang.builtins.ClassMPyTuple.class);
+        manager.registerTransformation(new ClassMPyTypeTransform(), minipython.builder.lang.builtins.ClassMPyType.class);
         // note that the ConditionalBlock class has no direct transformation registered,
         // since its conversion target is dependent on its usage context
         // inside the IfThenElseStatement

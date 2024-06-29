@@ -19,6 +19,9 @@ public class WasmtimeCli {
     public WasmtimeCli(String system) throws IOException {
         String cliHash;
         try (InputStream in = getClass().getResourceAsStream("/wasmtime-exes/" + system + ".sha256")) {
+            if (in == null) {
+                throw new IllegalArgumentException("Unsupported system: '%s'".formatted(system));
+            }
             // \A = beginning of input, i.e. the whole stream as a single token
             try (Scanner scanner = new Scanner(in).useDelimiter("\\A")) {
                 cliHash = scanner.hasNext() ? scanner.next() : "";

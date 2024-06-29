@@ -45,9 +45,21 @@ MPY_API char* __mpy_str_into_cstr(__MPyAllocedStr *str);
 // globals have different values than the pointer itself,
 // breaking all C code that compares __MPyObj* pointers
 // against builtin __MPyObj* symbols)
+MPY_API __MPyObj *__mpy_builtins_get_fn_id(void);
+MPY_API __MPyObj *__mpy_builtins_get_fn_input(void);
 MPY_API __MPyObj *__mpy_builtins_get_fn_print(void);
 MPY_API __MPyObj *__mpy_builtins_get_fn_super(void);
+MPY_API __MPyObj *__mpy_builtins_get_fn_type(void);
+
+MPY_API __MPyObj *__mpy_builtins_get_type_boolean(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_bound_method(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_function(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_none(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_num(void);
 MPY_API __MPyObj *__mpy_builtins_get_type_object(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_str(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_tuple(void);
+MPY_API __MPyObj *__mpy_builtins_get_type_type(void);
 
 // make __mpy_args_init/finish allocating,
 // since returning structs on the stack

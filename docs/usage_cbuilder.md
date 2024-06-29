@@ -1,36 +1,23 @@
 # Verwendung des CBuilders für Mini-Python
 
-Der CBuilder stellt das Backend für unseren Mini-Python-Compiler bereit. Damit müssen Sie
-die Code-Generierung nicht selbst schreiben, sondern können über die Java-API des CBuilders
-aus Ihrem AST den passenden C-Code erzeugen lassen, den Sie mit einem C-Compiler und der
-zusätzlich im CBuilder enthaltenen [C-Runtime](../c-runtime/) in ein ausführbares Programm
-übersetzen können.
+Der CBuilder stellt die C-Code Generierung des Builders bereit.
+Damit können Sie aus Ihrem AST oder dem generischen Builder
+den passenden C-Code erzeugen lassen,
+den Sie mit einem C-Compiler
+und der zusätzlich im CBuilder enthaltenen
+[C-Runtime](../c-runtime/)
+in ein ausführbares Programm übersetzen können.
 
 ## Setup
 
-Der CBuilder ist ein Java-basiertes Projekt. Es sollten alle Java-Versionen ab Java 9 nutzbar
-sein. Empfohlen wird das **[JDK 21 LTS](https://openjdk.org/projects/jdk/21/)**.
-
-Sie können den CBuilder entsprechend mit dem üblichen Vorgehen in Ihr eigenes Java-Projekt
-einbinden. Ein weiteres Setup ist für den CBuilder selbst nicht erforderlich.
+Das Einbinden des (C)Builders in Ihr Projekt ist unter [Setup](setup.md) beschrieben.
 
 Für das Übersetzen des mit dem CBuilder erzeugten C-Codes benötigen Sie noch einen C-Compiler
 wie in [Verwendung des generierten C-Codes](usage_generated_code.md) beschrieben.
 
-Es existiert eine einfache [Gradle-Konfiguration](../build.gradle), mit der Sie das Projekt
-in der Konsole oder auch in der IDE bauen können. Vermutlich wollen Sie dort noch Ihre
-Main-Klasse festlegen, indem sie das folgende Snippet in die `build.gradle` einfügen und
-anpassen:
-
-``` gradle
-application {
-    mainClass = 'wuppie.fluppie.foo.Main'
-}
-```
-
-(Dabei ist `wuppie.fluppie.foo.Main` mit Ihrer Main-Klasse zu ersetzen.)
-
 ## Basis-Funktionalität
+
+Alle Klassen des CBuilders befinden sich im Paket `minipython.builder.cbuilder.lang`.
 
 ### ProgramBuilder
 
@@ -460,7 +447,6 @@ builder.addClass(classC);
 
 ``` python
 objectC = C(5)
-objectC = C.__init__(5)     # Alternative zu "C(5)"
 
 print(objectC.getX())
 ```
