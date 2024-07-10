@@ -32,6 +32,7 @@ Mini-Python Builder documentation © 2024 by Mini-Python Builder Contributors is
 
 - [Introduction](architecture/readme.md)
 - [Components](./architecture/components.md)
+- [Terms](architecture/terms.md)
 
 # Builder
 

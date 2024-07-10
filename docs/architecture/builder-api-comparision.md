@@ -30,7 +30,7 @@
 
 ### Overall Structure
 
-- broadly the same (differs mostly in naming)
+- broadly the same (differs mostly in naming; see [terms.md](terms.md) for details on the exact terms in use)
     - top-level (global scope) containing:
         - statements to execute
         - function declarations/definitions
